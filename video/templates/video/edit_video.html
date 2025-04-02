@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Edit Video{% endblock %}
+
+{% block content %}
+  <h2 class="text-xl font-semibold mb-4">Edit "{{ video.rtsp }}"</h2>
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">Save Changes</button>
+    <a href="{% url 'video:videos' %}" class="ml-4 text-blue-600">Cancel</a>
+  </form>
+  <form action="{% url 'video:delete_video' video.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded">Delete</button>
+{% endblock %}

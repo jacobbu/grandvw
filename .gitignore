@@ -1,0 +1,27 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+venv/
+
+# Django stuff
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.pyo
+*.mo
+*.db
+
+# Static files (after collectstatic)
+staticfiles/
+
+# Local settings / secrets
+.env
+
+# macOS / Windows junk
+.DS_Store
+Thumbs.db
+

@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Log in{% endblock %} 
+
+{% block content %}
+<main class="flex-1 flex items-center justify-center">
+    <div class="text-center">
+        <h1 class="text-xl mb-6">Log in</h1>
+
+        <form method="post" action="." class="space-y-4">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <button class="mt-4 py-4 px-6 bg-gray-800 text-white rounded-xl">Submit</button>
+        </form>
+    </div>
+</main>
+{% endblock %}
