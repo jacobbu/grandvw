@@ -1,41 +1,65 @@
 import asyncio
+import subprocess
+import numpy as np
 import cv2
 import websockets
 import base64
 import json
 
-# Store clients
+# Store connected clients
 connected_clients = {}
 
 async def video_stream(websocket, path):
-    # Parse video ID from URL
-    video_id = path.strip("/").split("/")[-1]
-    
-    # replace this with database lookup if needed
-    rtsp_url = f"rtsp://admin:Buf57alo!@192.168.86.200:8554/h264Preview_01_main"  # Replace or fetch from DB
+    print("New WebSocket connection on:", path)
 
-    cap = cv2.VideoCapture(rtsp_url)
+    video_id = path.strip("/").split("/")[-1]
+
+    # Use your actual working RTSP stream here
+    rtsp_url = f"rtsp://admin:Buf57alo!@136.36.76.5:8554/h264Preview_01_main"
+
+    ffmpeg_cmd = [
+        'ffmpeg',
+        '-rtsp_transport', 'tcp',
+        '-i', rtsp_url,
+        '-loglevel', 'quiet',
+        '-an',  # disable audio
+        '-f', 'image2pipe',
+        '-pix_fmt', 'bgr24',
+        '-vcodec', 'rawvideo',
+        '-'
+    ]
+
+    ffmpeg_proc = subprocess.Popen(ffmpeg_cmd, stdout=subprocess.PIPE)
 
     connected_clients[websocket] = video_id
 
     try:
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
+        frame_width = 2304
+        frame_height = 1296
+
+        while True:
+            raw_frame = ffmpeg_proc.stdout.read(frame_width * frame_height * 3)
+            if not raw_frame:
+                print("No frame data received.")
                 break
+
+            frame = np.frombuffer(raw_frame, np.uint8).reshape((frame_height, frame_width, 3))
 
             _, buffer = cv2.imencode('.jpg', frame)
             encoded = base64.b64encode(buffer).decode('utf-8')
             await websocket.send(json.dumps({'image': encoded}))
-            await asyncio.sleep(0.03)  # ~30 FPS
+            await asyncio.sleep(0.1)
+
     except Exception as e:
-        print("Error:", e)
+        print("Streaming error:", e)
+
     finally:
-        cap.release()
+        ffmpeg_proc.terminate()
         connected_clients.pop(websocket, None)
 
 async def main():
-    async with websockets.serve(video_stream, "localhost", 8001):
+    print("WebSocket server starting on ws://0.0.0.0:8001")
+    async with websockets.serve(video_stream, "0.0.0.0", 8001):
         await asyncio.Future()  # run forever
 
 if __name__ == "__main__":
