@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Video Streams{% endblock %} 
+
+{% block content %}
+  <h2>Video Streams</h2>
+  <ul>
+    {% for video in videos %}
+  <li class="flex justify-between items-center mb-2">
+    <span>{{ video.name }} — {{ video.rtsp }}</span>
+    <div class="flex gap-2">http://127.0.0.1:8000/video/
+      <a href="{% url 'video:edit_video' video.id %}" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded">Edit</a>
+      <a href="{% url 'video:stream_video' video.id %}" class="text-blue-500 hover:underline">Live Stream</a>  
+    </form>
+    </div>
+  </li>
+{% endfor %}
+  </ul>
+
+
+</br></br>
+<div class="mt-auto pt-4">
+    <a href="{% url 'video:add_video' %}" button class="mt-4 py-4 px-6 bg-gray-800 text-white rounded-xl">
+        Add Camera
+    </a>
+</div>
+{% endblock %}

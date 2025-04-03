@@ -1,0 +1,22 @@
+{% extends 'core/base.html' %}
+{% block title %}Streaming {{ video.name }}{% endblock %}
+
+{% block content %}
+<h2 class="text-xl font-bold mb-4">Live Stream: {{ video.name }}</h2>
+<canvas id="videoCanvas" width="640" height="480" class="border shadow"></canvas>
+
+<script>
+  const canvas = document.getElementById('videoCanvas');
+  const ctx = canvas.getContext('2d');
+  const socket = new WebSocket('ws://localhost:8001/stream/{{ video.id }}');
+
+  socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    const img = new Image();
+    img.onload = function() {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+    img.src = 'data:image/jpeg;base64,' + data.image;
+  };
+</script>
+{% endblock %}

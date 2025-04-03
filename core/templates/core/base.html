@@ -1,0 +1,68 @@
+<!doctype html>
+<html class="h-full">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+        <title>{% block title %}{% endblock %} | grandvw.io</title>
+    </head>
+    <body class="h-full flex flex-col bg-gray-400">
+        <nav class="p-6 flex items-center justify-between bg-gray-400 relative">
+            <!-- Left (logo) -->
+            <div class="flex-1">
+                <a href="/" class="text-xl text-white">_/\_ grandvw.io</a>
+            </div>
+        
+            <!-- Center (username) -->
+            <div class="absolute left-1/2 transform -translate-x-1/2">
+                {% if request.user.is_authenticated %}
+                    <span class="text-white text-lg"><i>{{ request.user.username }}</i></span>
+                {% endif %}
+            </div>
+        
+            <!-- Right (nav links) -->
+            <div class="space-x-4">
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'core:dashboard' %}" class="text-white">Dashboard</a>   
+                    <a href="{% url 'video:videos' %}" class="text-white">Video Streams</a>    
+                    <a href="{% url 'data:add_figure' %}" class="text-white">Data</a>                
+                {% else %}
+                <!--    <a href="{% url 'core:about' %}" class="text-white">About</a>   -->
+                <!--    <a href="{% url 'accounts:signup' %}" class="py-3 px-4 bg-white text-gray-800 rounded-xl">Sign up</a>   -->
+                    <a href="{% url 'accounts:login' %}" class="py-3 px-4 bg-white text-gray-800 rounded-xl">Log in</a>
+                {% endif %}
+            </div>
+        </nav>
+
+        <main class="p-6 flex-1">
+            <div class="h-full w-full bg-white rounded-xl p-6 shadow-md">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </main>
+
+        <footer class="p-6 bg-gray-400">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white">_/\________</p>
+                </div> <!-- Placeholder to balance the layout -->
+                
+                <p class="text-xs text-center text-gray-800 flex-1">
+                    © 2025 grandvw.io, LLC. All rights reserved.
+                </p>
+                
+                {% if request.user.is_authenticated %}
+                    <form method="POST" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button class="text-xs py-1 px-2 bg-gray-400 text-gray-800 rounded-xl" type="submit">
+                            Logout
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </footer>
+        
+
+    </body>
+</html>
