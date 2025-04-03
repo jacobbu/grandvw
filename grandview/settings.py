@@ -13,7 +13,7 @@ SECRET_KEY = "django-insecure-@hv%%&thpb#o0drq%!-x*6cbfd2scm+x9f+shhc%c0x7je(#-2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['grandvw.io', 'www.grandvw.io']
 
 AUTH_USER_MODEL = "accounts.User"
 
