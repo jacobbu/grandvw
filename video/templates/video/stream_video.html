@@ -3,12 +3,20 @@
 
 {% block content %}
 <h2 class="text-xl font-bold mb-4">Live Stream: {{ video.name }}</h2>
+<p class="text-gray-500 text-sm">RTSP Source: {{ video.rtsp }}</p>
+
 <canvas id="videoCanvas" width="640" height="480" class="border shadow"></canvas>
 
 <script>
   const canvas = document.getElementById('videoCanvas');
   const ctx = canvas.getContext('2d');
-  const socket = new WebSocket("wss://" + window.location.host + "/stream/1");
+  const videoId = "{{ video.id }}";
+  
+  // Prod
+  const socket = new WebSocket("wss://" + window.location.host + "/stream/" + videoId);
+
+  // Dev
+  // const socket = new WebSocket("ws://127.0.0.1:8001/stream/{{ video.id }}");
 
   socket.onmessage = function(event) {
     const data = JSON.parse(event.data);
