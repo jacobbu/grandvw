@@ -12,7 +12,7 @@ async def video_stream(websocket, path):
     video_id = path.strip("/").split("/")[-1]
     
     # replace this with database lookup if needed
-    rtsp_url = f"rtsp://admin:Buf57alo!@192.168.86.200:554/h264Preview_01_main"  # Replace or fetch from DB
+    rtsp_url = f"rtsp://admin:Buf57alo!@192.168.86.200:8554/h264Preview_01_main"  # Replace or fetch from DB
 
     cap = cv2.VideoCapture(rtsp_url)
 

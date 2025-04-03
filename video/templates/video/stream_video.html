@@ -8,7 +8,7 @@
 <script>
   const canvas = document.getElementById('videoCanvas');
   const ctx = canvas.getContext('2d');
-  const socket = new WebSocket('ws://localhost:8001/stream/{{ video.id }}');
+  const socket = new WebSocket("wss://" + window.location.host + "/stream/1");
 
   socket.onmessage = function(event) {
     const data = JSON.parse(event.data);
