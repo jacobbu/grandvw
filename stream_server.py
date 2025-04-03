@@ -5,6 +5,14 @@ import cv2
 import websockets
 import base64
 import json
+import os
+from asgiref.sync import sync_to_async
+import django
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "grandview.settings")
+django.setup()
+
+from video.models import Video
 
 # Store connected clients
 connected_clients = {}
@@ -14,8 +22,20 @@ async def video_stream(websocket, path):
 
     video_id = path.strip("/").split("/")[-1]
 
+    # Look up the RTSP URL from the database
+    try:
+        video_obj = await sync_to_async(Video.objects.get)(id=video_id)
+        rtsp_url = video_obj.rtsp
+        print(f"Requested stream for video ID: {video_id}")
+        print(f"Resolved RTSP URL: {rtsp_url}")
+
+    except Video.DoesNotExist:
+        await websocket.send(json.dumps({'error': 'Invalid video ID'}))
+        await websocket.close()
+        return
+
     # Use your actual working RTSP stream here
-    rtsp_url = f"rtsp://admin:Buf57alo!@136.36.76.5:8554/h264Preview_01_main"
+    # rtsp_url = f"rtsp://admin:Buf57alo!@136.36.76.5:8554/h264Preview_01_main"
 
     ffmpeg_cmd = [
         'ffmpeg',
