@@ -19,7 +19,8 @@ venv/
 staticfiles/
 
 # Local settings / secrets
-.env
+venv/
+env/
 
 # macOS / Windows junk
 .DS_Store
