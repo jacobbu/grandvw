@@ -8,3 +8,9 @@ class Video(models.Model):
     created_by = models.ForeignKey(User, related_name='videos', on_delete=models.CASCADE)
     created_at = models.TimeField(auto_now_add=True)
 
+class Detection(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    camera = models.ForeignKey(Video, on_delete=models.CASCADE)
+    label = models.CharField(max_length=100)
+    confidence = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)

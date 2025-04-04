@@ -12,10 +12,33 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "grandview.settings")
 django.setup()
 
-from video.models import Video
+from video.models import Video, Detection
+from ultralytics import YOLO
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+# Load YOLO model once
+model = YOLO("/Users/jacobbuckner/Desktop/grandview/grandview/yolo11n.pt")  # Replace with your custom or pretrained model
 
 # Store connected clients
 connected_clients = {}
+
+@sync_to_async
+def get_video_creator(video_obj):
+    return video_obj.created_by
+
+async def save_detections(result, video_obj):
+    user = await get_video_creator(video_obj)
+    
+    for box in result.boxes.data.tolist():
+        x1, y1, x2, y2, conf, cls = box
+        await sync_to_async(Detection.objects.create)(
+            user=video_obj.created_by,
+            camera=video_obj,
+            label=result.names[int(cls)],
+            confidence=conf,
+        )
 
 async def video_stream(websocket, path):
     print("New WebSocket connection on:", path)
@@ -33,9 +56,6 @@ async def video_stream(websocket, path):
         await websocket.send(json.dumps({'error': 'Invalid video ID'}))
         await websocket.close()
         return
-
-    # Use your actual working RTSP stream here
-    # rtsp_url = f"rtsp://admin:Buf57alo!@136.36.76.5:8554/h264Preview_01_main"
 
     ffmpeg_cmd = [
         'ffmpeg',
@@ -65,9 +85,25 @@ async def video_stream(websocket, path):
 
             frame = np.frombuffer(raw_frame, np.uint8).reshape((frame_height, frame_width, 3))
 
-            _, buffer = cv2.imencode('.jpg', frame)
-            encoded = base64.b64encode(buffer).decode('utf-8')
-            await websocket.send(json.dumps({'image': encoded}))
+            # Run YOLO detection
+            results = model(frame)
+            annotated_frame = results[0].plot()
+
+            # Save detections to DB (non-blocking)
+            asyncio.create_task(save_detections(results[0], video_obj))
+
+            # Encode original and annotated frame
+            _, original_buf = cv2.imencode('.jpg', frame)
+            _, annotated_buf = cv2.imencode('.jpg', annotated_frame)
+
+            original_b64 = base64.b64encode(original_buf).decode('utf-8')
+            annotated_b64 = base64.b64encode(annotated_buf).decode('utf-8')
+
+            await websocket.send(json.dumps({
+                'original': original_b64,
+                'annotated': annotated_b64,
+            }))
+
             await asyncio.sleep(0.1)
 
     except Exception as e:
