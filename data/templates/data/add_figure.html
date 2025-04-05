@@ -3,7 +3,19 @@
 {% block title %}Add Figure{% endblock %} 
 
 {% block content %}
-    <h1 class="text-xl">Add Figure</h1>
+    
+    <h1 class="text-2xl font-bold mb-4">Camera Data Dashboard</h1>
+
+        {% if graph1 %}
+            <div class="mb-6">{{ graph1|safe }}</div>
+            <div class="mb-6">{{ graph2|safe }}</div>
+            <div class="mb-6">{{ graph3|safe }}</div>
+        {% else %}
+            <p class="text-gray-600 italic">No detection data available for your account yet.</p>
+        {% endif %}
+
+    <h1>Add Figure</h1>
+    
 
     <form method="post" action="/data/add-figure">
         {% csrf_token %}

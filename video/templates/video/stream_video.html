@@ -3,28 +3,53 @@
 
 {% block content %}
 <h2 class="text-xl font-bold mb-4">Live Stream: {{ video.name }}</h2>
-<p class="text-gray-500 text-sm">RTSP Source: {{ video.rtsp }}</p>
+<p class="text-gray-500 text-sm mb-4">RTSP Source: {{ video.rtsp }}</p>
 
-<canvas id="videoCanvas" width="640" height="480" class="border shadow"></canvas>
+<div style="display: flex; gap: 20px;">
+  <div>
+    <h3 class="text-md font-semibold mb-1">Original</h3>
+    <canvas id="originalCanvas" width="640" height="480" class="border shadow"></canvas>
+  </div>
+  <div>
+    <h3 class="text-md font-semibold mb-1">Detected</h3>
+    <canvas id="annotatedCanvas" width="640" height="480" class="border shadow"></canvas>
+  </div>
+</div>
+
+<script>console.log("WebSocket init for video {{ video.id }}");</script>
 
 <script>
-  const canvas = document.getElementById('videoCanvas');
-  const ctx = canvas.getContext('2d');
-  const videoId = "{{ video.id }}";
-  
-  // Prod
-  const socket = new WebSocket("wss://" + window.location.host + "/stream/" + videoId);
+  const originalCanvas = document.getElementById('originalCanvas');
+  const annotatedCanvas = document.getElementById('annotatedCanvas');
+  const ctxOriginal = originalCanvas.getContext('2d');
+  const ctxAnnotated = annotatedCanvas.getContext('2d');
 
-  // Dev
-  // const socket = new WebSocket("ws://127.0.0.1:8001/stream/{{ video.id }}");
+
+  const socket = new WebSocket("wss://grandvw.io/stream/{{ video.id }}");
+
 
   socket.onmessage = function(event) {
     const data = JSON.parse(event.data);
-    const img = new Image();
-    img.onload = function() {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    };
-    img.src = 'data:image/jpeg;base64,' + data.image;
+
+    if (data.original) {
+      const imgOriginal = new Image();
+      imgOriginal.onload = function() {
+        ctxOriginal.drawImage(imgOriginal, 0, 0, originalCanvas.width, originalCanvas.height);
+      };
+      imgOriginal.src = 'data:image/jpeg;base64,' + data.original;
+    }
+
+    if (data.annotated) {
+      const imgAnnotated = new Image();
+      imgAnnotated.onload = function() {
+        ctxAnnotated.drawImage(imgAnnotated, 0, 0, annotatedCanvas.width, annotatedCanvas.height);
+      };
+      imgAnnotated.src = 'data:image/jpeg;base64,' + data.annotated;
+    }
+  };
+
+  socket.onerror = function(error) {
+    console.error("WebSocket error:", error);
   };
 </script>
 {% endblock %}

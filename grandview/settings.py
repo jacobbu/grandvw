@@ -1,4 +1,6 @@
 from pathlib import Path
+import pymysql
+pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -13,7 +15,7 @@ SECRET_KEY = "django-insecure-@hv%%&thpb#o0drq%!-x*6cbfd2scm+x9f+shhc%c0x7je(#-2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['grandvw.io', 'www.grandvw.io', '127.0.0.1']
+ALLOWED_HOSTS = ['grandvw.io', 'www.grandvw.io', '127.0.0.1', '18.217.161.72']
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -72,11 +74,16 @@ WSGI_APPLICATION = "grandview.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'grandview_database',
+        'USER': 'admin',
+        'PASSWORD': 'Buf57alo!',
+        'HOST': 'database-3.cno4i48oy39h.us-east-2.rds.amazonaws.com',
+        'PORT': '3306',
     }
 }
+
 
 
 # Password validation
