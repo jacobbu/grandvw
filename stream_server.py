@@ -86,11 +86,7 @@ async def video_stream(websocket, path):
             frame = np.frombuffer(raw_frame, np.uint8).reshape((frame_height, frame_width, 3))
 
             # Run YOLO detection
-<<<<<<< HEAD
             results = model(frame, conf=0.6)
-=======
-            results = model(frame)
->>>>>>> 2df91e847cdbb2b034a8926021ef00bae5bd1e55
             annotated_frame = results[0].plot()
 
             # Save detections to DB (non-blocking)
