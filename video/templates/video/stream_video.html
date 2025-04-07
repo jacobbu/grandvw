@@ -18,12 +18,25 @@
 
 <script>console.log("WebSocket init for video {{ video.id }}");</script>
 
+<div id="eventAlert" class="hidden mb-4 p-4 rounded-lg shadow-md text-white font-semibold" role="alert">
+  <div class="flex justify-between items-center">
+    <span id="eventMessage">Event message</span>
+    <button onclick="document.getElementById('eventAlert').classList.add('hidden')" class="ml-4 focus:outline-none">
+      &times;
+    </button>
+  </div>
+</div>
+
+
 <script>
   const originalCanvas = document.getElementById('originalCanvas');
   const annotatedCanvas = document.getElementById('annotatedCanvas');
   const ctxOriginal = originalCanvas.getContext('2d');
   const ctxAnnotated = annotatedCanvas.getContext('2d');
 
+  const alertBox = document.getElementById('eventAlert');
+  const eventMessage = document.getElementById('eventMessage');
+  const latestStatus = document.getElementById('latestStatus');
 
   const socket = new WebSocket("wss://grandvw.io/stream/{{ video.id }}");
 
@@ -31,9 +44,11 @@
   socket.onmessage = function(event) {
     const data = JSON.parse(event.data);
 
+    // Render frames
     if (data.original) {
       const imgOriginal = new Image();
-      imgOriginal.onload = function() {
+      imgOriginal.onload = () => {
+        ctxOriginal.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
         ctxOriginal.drawImage(imgOriginal, 0, 0, originalCanvas.width, originalCanvas.height);
       };
       imgOriginal.src = 'data:image/jpeg;base64,' + data.original;
@@ -41,10 +56,26 @@
 
     if (data.annotated) {
       const imgAnnotated = new Image();
-      imgAnnotated.onload = function() {
+      imgAnnotated.onload = () => {
+        ctxAnnotated.clearRect(0, 0, annotatedCanvas.width, annotatedCanvas.height);
         ctxAnnotated.drawImage(imgAnnotated, 0, 0, annotatedCanvas.width, annotatedCanvas.height);
       };
       imgAnnotated.src = 'data:image/jpeg;base64,' + data.annotated;
+    }
+
+    // Handle event alert
+    if (data.event_type && data.message) {
+      // Set alert box color and message
+      alertBox.classList.remove('hidden', 'bg-green-500', 'bg-red-500');
+
+      if (data.event_type === "KIT_SUCCESS") {
+        alertBox.classList.add('bg-green-500');
+      } else {
+        alertBox.classList.add('bg-red-500');
+      }
+
+      eventMessage.textContent = data.message;
+      latestStatus.textContent = data.message;
     }
   };
 
@@ -52,4 +83,9 @@
     console.error("WebSocket error:", error);
   };
 </script>
+
+
+<h3 class="text-md font-semibold mt-6">Most Recent Event</h3>
+<p id="latestStatus" class="text-gray-700">Waiting for detection...</p>
+
 {% endblock %}

@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import VideoForm
-from .models import Video
+from .models import Video, Event
 
 @login_required
 
@@ -51,3 +51,8 @@ def edit_video(request, video_id):
 def stream_video(request, video_id):
     video = get_object_or_404(Video, id=video_id, created_by=request.user)
     return render(request, 'video/stream_video.html', {'video': video})
+
+@login_required
+def dashboard(request):
+    recent_events = Event.objects.filter(user=request.user).order_by('-timestamp')[:20]
+    return render(request, 'dashboard.html', {'events': recent_events})

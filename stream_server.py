@@ -12,33 +12,76 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "grandview.settings")
 django.setup()
 
-from video.models import Video, Detection
+from video.models import Video, Detection, Event
 from ultralytics import YOLO
 from django.contrib.auth import get_user_model
+from datetime import datetime, timedelta
+from custom_logic.models import UserEventAssignment
+from custom_logic.utils import load_logic
+
+
+
 
 User = get_user_model()
 
-# Load YOLO model once
-model = YOLO("avy.pt")  # Replace with your custom or pretrained model
+model = YOLO("avy.pt")
 
-# Store connected clients
 connected_clients = {}
+
+def evaluate_user_events(context):
+    user = context["user"]
+    labels = context["labels"]
+    video_obj = context["video"]
+
+    print(f"[DEBUG] Evaluating events for {user.username} with labels: {labels}")
+
+    assignments = UserEventAssignment.objects.filter(user=user)
+    for assignment in assignments:
+        logic = load_logic(assignment.event_def.import_path)
+        result = logic.evaluate_event(context)
+        print(f"[DEBUG] Result from {assignment.event_def.name}:", result)
+        
+        if result:
+            Event.objects.create(
+                user=user,
+                camera=video_obj,
+                event_type=result.get("event_type", "CUSTOM_EVENT"),
+                details=result.get("details", "")
+            )
 
 @sync_to_async
 def get_video_creator(video_obj):
     return video_obj.created_by
 
-async def save_detections(result, video_obj):
+async def save_detections(result, video_obj, frame):
     user = await get_video_creator(video_obj)
-    
+    labels = []
+
+    # Save each detected object to the DB
     for box in result.boxes.data.tolist():
         x1, y1, x2, y2, conf, cls = box
+        label = result.names[int(cls)]
+        labels.append(label)
+
         await sync_to_async(Detection.objects.create)(
-            user=video_obj.created_by,
+            user=user,
             camera=video_obj,
-            label=result.names[int(cls)],
+            label=label,
             confidence=conf,
         )
+
+    context = {
+    "labels": labels,
+    "timestamp": datetime.now(),
+    "camera_id": video_obj.id,
+    "user": user,
+    "video": video_obj,
+    "frame": frame
+    }
+
+    await sync_to_async(evaluate_user_events)(context)
+
+
 
 async def video_stream(websocket, path):
     print("New WebSocket connection on:", path)
@@ -86,11 +129,11 @@ async def video_stream(websocket, path):
             frame = np.frombuffer(raw_frame, np.uint8).reshape((frame_height, frame_width, 3))
 
             # Run YOLO detection
-            results = model(frame, conf=0.6)
+            results = model(frame, conf=0.4)
             annotated_frame = results[0].plot()
 
             # Save detections to DB (non-blocking)
-            asyncio.create_task(save_detections(results[0], video_obj))
+            asyncio.create_task(save_detections(results[0], video_obj, frame))
 
             # Encode original and annotated frame
             _, original_buf = cv2.imencode('.jpg', frame)

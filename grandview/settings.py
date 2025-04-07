@@ -36,8 +36,12 @@ INSTALLED_APPS = [
     "accounts",
     "core",
     "data",
-    "video"
+    "video",
+    "custom_logic"
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / "media"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
