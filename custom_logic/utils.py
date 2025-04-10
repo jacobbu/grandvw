@@ -9,10 +9,11 @@ def load_logic(import_path):
 
 
 def execute_chartjs_config(code: str, context: dict) -> dict:
-    local_vars = {}
-    exec(code, context, local_vars)
-    config = local_vars.get("config", {})
+    exec_namespace = dict(context)  # copy context so we don't mutate it
+    exec(code, exec_namespace, exec_namespace)  # shared global/local namespace
+    config = exec_namespace.get("config", {})
     return json.loads(json.dumps(config))
+
 
 
 def get_rendered_charts(user, page_key, context_data):
