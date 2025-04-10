@@ -1,80 +1,103 @@
 {% extends 'core/base.html' %}
 
+{% load static %}
+
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-  <h2 class="text-xl font-bold mb-4">Recent Events</h2>
 
-  <table class="w-full text-left border-collapse">
-    <thead>
-      <tr>
-        <th class="py-2 px-4 border-b">Time</th>
-        <th class="py-2 px-4 border-b">Camera</th>
-        <th class="py-2 px-4 border-b">Type</th>
-        <th class="py-2 px-4 border-b">Packed by</th>
-        <th class="py-2 px-4 border-b">Details</th>
-        <th class="py-2 px-4 border-b">Visual</th> <!-- 🆕 GIF column -->
-      </tr>
-    </thead>
-    <tbody>
-      {% for event in events %}
-      <tr>
-        <td class="py-2 px-4 border-b">{{ event.timestamp|date:"Y-m-d H:i:s" }}</td>
-        <td class="py-2 px-4 border-b">{{ event.camera.name }}</td>
-        <td class="py-2 px-4 border-b">{{ event.event_type }}</td>
-        <td class="py-2 px-4 border-b">{{ event.people }}</td>
-        <td class="py-2 px-4 border-b">{{ event.details }}</td>
-        <td class="py-2 px-4 border-b">
-            {% if event.gif %}
-            <img
-              src="{{ event.gif.url }}"
-              alt="event gif"
-              class="w-32 border rounded shadow cursor-pointer hover:scale-105 transition"
-              onclick="openModal('{{ event.gif.url }}')"
-            >
-            {% else %}
-            <span class="text-gray-400 italic">No visual</span>
-            {% endif %}
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="5" class="py-4 text-center text-gray-400">No events yet.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <div id="gifModal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden justify-center items-center">
-    <div class="relative">
-      <img id="gifModalImage" src="" alt="Full GIF" class="max-h-[80vh] rounded shadow-xl border-2 border-white">
-      <button onclick="closeModal()" class="absolute top-2 right-2 text-white text-2xl font-bold bg-black bg-opacity-50 px-3 py-1 rounded-full hover:bg-opacity-80">
-        &times;
-      </button>
+   <!-- Today Cards -->
+   <div class="w-full px-4 sm:px-6 lg:px-8 my-10">
+    <div class="max-w-7xl mx-auto">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">Today's Totals</h2>
+  
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {% for card in cards %}
+          {% if card.period == "Today" %}
+            <div class="{{ card.color_class }} p-6 rounded-2xl shadow-md flex flex-col justify-between h-full min-h-[140px]">
+              <div class="mb-2">
+                <div class="font-bold text-xl text-center mb-2">{{ card.emoji }} {{ card.title }}</div>
+                <div class="text-5xl font-extrabold text-gray-800 text-center">{{ card.count }}</div>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
     </div>
   </div>
 
-  <script>
-    function openModal(gifUrl) {
-      const modal = document.getElementById('gifModal');
-      const modalImage = document.getElementById('gifModalImage');
-      modalImage.src = gifUrl;
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-  
-    function closeModal() {
-      const modal = document.getElementById('gifModal');
-      modal.classList.remove('flex');
-      modal.classList.add('hidden');
-    }
-  
-    // Optional: Close when clicking outside the image
-    document.getElementById('gifModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeModal();
+  <div class="rounded-2xl bg-white shadow p-6 mb-8">
+    <h2 class="text-2xl font-bold mb-4">Recent Events</h2>
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr>
+            <th class="py-2 px-4 border-b">Time</th>
+            <th class="py-2 px-4 border-b">Camera</th>
+            <th class="py-2 px-4 border-b">Type</th>
+            <th class="py-2 px-4 border-b">Packed by</th>
+            <th class="py-2 px-4 border-b">Details</th>
+            <th class="py-2 px-4 border-b">Visual (Click for GIF)</th> <!-- GIF column -->
+          </tr>
+        </thead>
+        <tbody>
+          {% for event in events %}
+          <tr class="{% if event.event_type == 'KIT_ERROR' %}bg-red-50{% endif %}">
+            <td class="py-2 px-4 border-b">{{ event.timestamp|date:"Y-m-d H:i:s" }}</td>
+            <td class="py-2 px-4 border-b">{{ event.camera.name }}</td>
+            <td class="py-2 px-4 border-b">{{ event.event_type }}</td>
+            <td class="py-2 px-4 border-b">{{ event.people }}</td>
+            <td class="py-2 px-4 border-b">{{ event.details }}</td>
+            <td class="py-2 px-4 border-b">
+                {% if event.gif %}
+                <img
+                  src="{% if event.gif_thumb %}{{ event.gif_thumb.url }}{% else %}{% static 'core/img/play-preview.png' %}{% endif %}"
+                  data-gif-url="{{ event.gif.url }}"
+                  alt="Click to view GIF"
+                  class="w-32 border rounded shadow cursor-pointer hover:scale-105 transition"
+                  onclick="openGifModal(this.dataset.gifUrl)"
+                >
+                {% else %}
+                <span class="text-gray-400 italic">No visual</span>
+                {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="py-4 text-center text-gray-400">No events yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    <div id="gifModal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden justify-center items-center">
+      <div class="relative">
+        <img id="gifModalImage" src="" alt="Full GIF" class="max-h-[80vh] rounded shadow-xl border-2 border-white">
+        <button onclick="closeGifModal()" class="absolute top-2 right-2 text-white text-2xl font-bold bg-black bg-opacity-50 px-3 py-1 rounded-full hover:bg-opacity-80">
+          &times;
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function openGifModal(gifUrl) {
+        const modal = document.getElementById('gifModal');
+        const modalImage = document.getElementById('gifModalImage');
+        modalImage.src = gifUrl;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
       }
-    });
-  </script>
-  
+    
+      function closeGifModal() {
+        const modal = document.getElementById('gifModal');
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+      }
+    
+      document.getElementById('gifModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeGifModal();
+        }
+      });
+    </script>
+  </div>
 {% endblock %}

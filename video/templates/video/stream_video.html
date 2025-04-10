@@ -11,7 +11,7 @@
     <canvas id="originalCanvas" width="640" height="480" class="border shadow"></canvas>
   </div>
   <div>
-    <h3 class="text-md font-semibold mb-1">Detected</h3>
+    <h3 class="text-md font-semibold mb-1">Annotated</h3>
     <canvas id="annotatedCanvas" width="640" height="480" class="border shadow"></canvas>
   </div>
 </div>
@@ -38,6 +38,7 @@
   const eventMessage = document.getElementById('eventMessage');
   const latestStatus = document.getElementById('latestStatus');
 
+  
   const socket = new WebSocket("wss://grandvw.io/stream/{{ video.id }}");
 
 
@@ -83,9 +84,5 @@
     console.error("WebSocket error:", error);
   };
 </script>
-
-
-<h3 class="text-md font-semibold mt-6">Most Recent Event</h3>
-<p id="latestStatus" class="text-gray-700">Waiting for detection...</p>
 
 {% endblock %}

@@ -24,7 +24,11 @@ from custom_logic.utils import load_logic
 
 User = get_user_model()
 
-model = YOLO("avy.pt")
+@sync_to_async
+def get_video_and_model(video_id):
+    video = Video.objects.select_related('yolo_model').get(id=video_id)
+    model_path = video.yolo_model.model_file.path if video.yolo_model else "default_model.pt"
+    return video, model_path
 
 connected_clients = {}
 
@@ -90,8 +94,9 @@ async def video_stream(websocket, path):
 
     # Look up the RTSP URL from the database
     try:
-        video_obj = await sync_to_async(Video.objects.get)(id=video_id)
+        video_obj, model_path = await get_video_and_model(video_id)
         rtsp_url = video_obj.rtsp
+        model = YOLO(model_path)
         print(f"Requested stream for video ID: {video_id}")
         print(f"Resolved RTSP URL: {rtsp_url}")
 

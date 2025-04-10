@@ -3,5 +3,26 @@
 {% block title %}Welcome{% endblock %} 
 
 {% block content %}
-    <h1 class="text-xl">Welcome to grandvw.io index</h1>
-{% endblock %} 
+{% if request.user.is_authenticated %}
+    <h1 class="text-xl mb-4 text-center">Welcome back! Let's get started!</h1>
+{% else %}
+    <h1 class="text-xl mb-4 text-center">Welcome to grandvw.io!</h1>
+    <p class="text-l mb-4 text-center">Log in or watch the demo video to learn more.</p>
+    </br>
+    </br>
+{% endif %}
+    <div class="px-10">
+        <div class="w-full h-120">
+            <iframe class="w-full h-120" 
+                    src="https://www.youtube.com/embed/_SHaZBhOq28" 
+                    title="Watch the demo" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+    
+    </br>
+    <h3 class="text-l mb-4 text-center">For more information, please email jacob@grandvw.io.</h3>
+{% endblock %}

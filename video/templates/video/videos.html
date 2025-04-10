@@ -3,21 +3,37 @@
 {% block title %}Video Streams{% endblock %} 
 
 {% block content %}
-  <h2>Video Streams</h2>
-  <ul>
-    {% for video in videos %}
-  <li class="flex items-center mb-2">
-    <span>{{ video.name }} — {{ video.rtsp }} - {{ video.created_by }}</span>
-    <div class="flex gap-2">
-    <br>
-      <a href="{% url 'video:edit_video' video.id %}" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded">Edit</a>
-      <a href="{% url 'video:stream_video' video.id %}" class="text-blue-500 hover:underline">Live Stream</a>  
-    </form>
-    </div>
-  </li>
-{% endfor %}
-  </ul>
+<h2 class="text-2xl font-bold mb-4">Video Streams</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {% for video in videos %}
+    <div class="bg-white rounded-2xl shadow p-4 flex flex-col justify-between">
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ video.name }}</h3>
 
+        <!-- RTSP Toggle -->
+        <div>
+          <p class="text-sm text-gray-600">
+            <strong>RTSP:</strong>
+            <button 
+              class="text-blue-600 underline focus:outline-none"
+              onclick="document.getElementById('rtsp-{{ video.id }}').classList.toggle('hidden')"
+            >
+              Show
+            </button>
+          </p>
+          <p id="rtsp-{{ video.id }}" class="text-sm text-gray-600 break-all hidden">{{ video.rtsp }}</p>
+        </div>
+
+        <p class="text-sm text-gray-600 break-all"><strong>YOLO Model:</strong> {{ video.yolo_model.title }}</p>
+        <p class="text-sm text-gray-600"><strong>Created by:</strong> {{ video.created_by }}</p>
+      </div>
+      <div class="flex gap-2 mt-auto">
+        <a href="{% url 'video:stream_video' video.id %}" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded">Live Stream</a>
+        <a href="{% url 'video:edit_video' video.id %}" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded">Edit</a>
+      </div>
+    </div>
+  {% endfor %}
+</div>
 
 </br></br>
 <div class="mt-auto pt-4">
