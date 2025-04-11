@@ -3,14 +3,25 @@
 {% block title %}Sign up{% endblock %} 
 
 {% block content %}
-    <h1 class="text-xl">Sign up</h1>
+<div class="flex justify-center items-center min-h-screen bg-gray-50">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Create Your Account</h1>
 
     <form method="post" action=".">
         {% csrf_token %}
-
-        {{ form.as_p }}
-    
-        <button class="mt-4 py-4 px-6 bg-gray-800 text-white rounded-xl">Submit</button>
-
-    </form>
-{% endblock %} 
+      
+        <div class="space-y-4">
+          {{ form.as_p }}
+        </div>
+      
+        <button type="submit" class="mt-6 w-full py-3 bg-gray-800 text-white font-semibold rounded-xl hover:bg-gray-900 transition">
+          Sign Up
+        </button>
+      
+        <p class="mt-6 text-[0.7rem] text-gray-500 leading-relaxed text-justify">
+          By signing up for <span class="font-semibold">grandvw.io</span>, you consent to receive SMS text messages related to alerts, notifications, or updates specific to your account, business, or use case. These may include system alerts, event notifications, and important updates. Standard messaging rates may apply. You may opt out at any time by contacting support.
+        </p>
+      </form>
+  </div>
+</div>
+{% endblock %}
