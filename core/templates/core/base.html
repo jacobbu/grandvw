@@ -1,88 +1,86 @@
 <!doctype html>
 <html class="h-full">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>{% block title %}{% endblock %} | grandvw.io</title>
+  </head>
 
-        <title>{% block title %}{% endblock %} | grandvw.io</title>
-    </head>
-    <body class="h-full flex flex-col bg-gray-400">
-        <nav class="p-6 bg-gray-400 relative">
-            <div class="flex items-center justify-between">
-              
-              <!-- Left (logo) -->
-              <div class="flex-1">
-                <a href="/" class="text-xl text-white">_/\_ grandvw.io</a>
-              </div>
-          
-              <!-- Center (username) -->
-              <div class="absolute left-1/2 transform -translate-x-1/2 hidden sm:block">
-                {% if request.user.is_authenticated %}
-                  <span class="text-white text-lg"><i>{{ request.user.username }}</i></span>
-                {% endif %}
-              </div>
-          
-              <!-- Mobile menu button -->
-              <div class="sm:hidden">
-                <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="text-white focus:outline-none">
-                  ☰
-                </button>
-              </div>
-          
-              <!-- Desktop nav links -->
-              <div class="hidden sm:flex space-x-4">
-                {% if request.user.is_authenticated %}
-                  <a href="{% url 'core:dashboard' %}" class="text-white">Dashboard</a>
-                  <a href="{% url 'user_charts' %}" class="text-white">Charts</a>
-                  <a href="{% url 'video:videos' %}" class="text-white">Video Streams</a>
-                {% else %}
-                  <a href="{% url 'accounts:login' %}" class="py-3 px-4 bg-white text-gray-800 rounded-xl">Log in</a>
-                {% endif %}
-              </div>
-            </div>
-          
-            <!-- Mobile dropdown menu -->
-            <div id="mobileMenu" class="mt-4 space-y-2 sm:hidden hidden">
-              {% if request.user.is_authenticated %}
-                <a href="{% url 'core:dashboard' %}" class="block text-white">Dashboard</a>
-                <a href="{% url 'user_charts' %}" class="block text-white">Charts</a>
-                <a href="{% url 'video:videos' %}" class="block text-white">Video Streams</a>
-              {% else %}
-                <a href="{% url 'accounts:login' %}" class="block py-2 px-4 bg-white text-gray-800 rounded-xl">Log in</a>
-              {% endif %}
-            </div>
-          </nav>
-          
+  <body class="h-full flex flex-col bg-gray-100 text-gray-800">
 
-        <main class="flex-1">
-            <div class="h-full w-full bg-white p-6 shadow-md">
-                {% block content %}
-                {% endblock %}
-            </div>
-        </main>
-
-        <footer class="p-2 bg-gray-400">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-white">_/\________</p>
-                </div> <!-- Placeholder to balance the layout -->
-                
-                <p class="text-xs text-center text-gray-800 flex-1">
-                    © 2025 grandvw.io, LLC. All rights reserved.
-                </p>
-                
-                {% if request.user.is_authenticated %}
-                    <form method="POST" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button class="text-xs py-1 px-2 bg-gray-200 text-gray-800 rounded-xl" type="submit">
-                            Logout
-                        </button>
-                    </form>
-                {% endif %}
-            </div>
-        </footer>
+    <!-- Header -->
+    <nav class="bg-white shadow-md px-6 py-4">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
         
+        <!-- Logo -->
+        <a href="/" class="text-2xl font-bold text-blue-800 tracking-wide">
+          _/\_ grandvw.io
+        </a>
 
-    </body>
+        <!-- Username (centered on desktop) -->
+        <div class="absolute left-1/2 transform -translate-x-1/2 hidden sm:block">
+          {% if request.user.is_authenticated %}
+            <span class="text-sm text-gray-500 italic">{{ request.user.username }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Nav links -->
+        <div class="hidden sm:flex items-center space-x-6 text-sm">
+          {% if request.user.is_authenticated %}
+            <a href="{% url 'core:dashboard' %}" class="hover:text-blue-600">Dashboard</a>
+            <a href="{% url 'user_charts' %}" class="hover:text-blue-600">Charts</a>
+            <a href="{% url 'video:videos' %}" class="hover:text-blue-600">Video Streams</a>
+          {% else %}
+            <a href="{% url 'accounts:login' %}" class="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition">Log in</a>
+          {% endif %}
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="sm:hidden">
+          <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="text-blue-600 focus:outline-none text-2xl">
+            ☰
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Dropdown -->
+      <div id="mobileMenu" class="sm:hidden hidden mt-4 px-6 space-y-2">
+        {% if request.user.is_authenticated %}
+          <a href="{% url 'core:dashboard' %}" class="block hover:text-blue-600">Dashboard</a>
+          <a href="{% url 'user_charts' %}" class="block hover:text-blue-600">Charts</a>
+          <a href="{% url 'video:videos' %}" class="block hover:text-blue-600">Video Streams</a>
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="block bg-blue-800 text-white px-4 py-2 rounded-xl hover:bg-blue-600">Log in</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1">
+      <div class="max-w-7xl mx-auto p-6">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-10 py-4 shadow-inner">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between text-sm px-6">
+        <p class="text-gray-500">_/\________</p>
+        <p class="text-gray-400 text-center sm:text-left mt-2 sm:mt-0">
+          © 2025 grandvw.io, LLC. All rights reserved.
+        </p>
+        {% if request.user.is_authenticated %}
+          <form method="POST" action="{% url 'logout' %}" class="mt-2 sm:mt-0">
+            {% csrf_token %}
+            <button class="text-gray-600 bg-gray-100 px-3 py-1 rounded-md hover:bg-gray-200 transition" type="submit">
+              Logout
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </footer>
+
+  </body>
 </html>
