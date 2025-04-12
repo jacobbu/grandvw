@@ -4,59 +4,49 @@
 
 {% block content %}
 
-<div class="rounded-2xl bg-white shadow p-6 mb-8">
-  <!-- TODAY -->
-  <div class="mb-12">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Today's Totals</h2>
-    <div class="flex justify-center">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-4xl">
-        {% for card in cards %}
-          {% if card.period == "Today" %}
-            <div class="{{ card.color_class }} p-4 rounded-2xl shadow-sm">
-              <div class="font-bold text-xl text-center mb-1">{{ card.emoji }} {{ card.title }}</div>
-              <div class="text-3xl font-extrabold text-gray-800 text-center">{{ card.count }}</div>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
+<!-- GRID WITH THREE COLUMNS -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-10">
+  
+  <!-- COLUMN 1: TODAY -->
+  <div class="bg-white rounded-2xl shadow p-4">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">Today's Totals</h2>
+    {% for card in cards %}
+      {% if card.period == "Today" %}
+        <div class="{{ card.color_class }} w-full py-2 px-3 mb-3 rounded-xl shadow-sm">
+          <div class="text-center font-bold text-base mb-1">{{ card.emoji }} {{ card.title }}</div>
+          <div class="text-2xl font-extrabold text-gray-800 text-center">{{ card.count }}</div>
+        </div>
+      {% endif %}
+    {% endfor %}
   </div>
 
-  <!-- LAST 30 DAYS -->
-  <div class="mb-12">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Last 30 Days Totals</h2>
-    <div class="flex justify-center">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-4xl">
-        {% for card in cards %}
-          {% if card.period == "Last 30 Days" %}
-            <div class="{{ card.color_class }} p-4 rounded-2xl shadow-sm">
-              <div class="font-bold text-xl text-center mb-1">{{ card.emoji }} {{ card.title }}</div>
-              <div class="text-3xl font-extrabold text-gray-800 text-center">{{ card.count }}</div>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
+  <!-- COLUMN 2: LAST 30 DAYS -->
+  <div class="bg-white rounded-2xl shadow p-4">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">Last 30 Days Totals</h2>
+    {% for card in cards %}
+      {% if card.period == "Last 30 Days" %}
+        <div class="{{ card.color_class }} w-full py-2 px-3 mb-3 rounded-xl shadow-sm">
+          <div class="text-center font-bold text-base mb-1">{{ card.emoji }} {{ card.title }}</div>
+          <div class="text-2xl font-extrabold text-gray-800 text-center">{{ card.count }}</div>
+        </div>
+      {% endif %}
+    {% endfor %}
   </div>
 
-  <!-- LAST 365 DAYS -->
-  <div class="mb-6">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Last 365 Days Totals</h2>
-    <div class="flex justify-center">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-4xl">
-        {% for card in cards %}
-          {% if card.period == "Last 365 Days" %}
-            <div class="{{ card.color_class }} p-4 rounded-2xl shadow-sm">
-              <div class="font-bold text-xl text-center mb-1">{{ card.emoji }} {{ card.title }}</div>
-              <div class="text-3xl font-extrabold text-gray-800 text-center">{{ card.count }}</div>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
+  <!-- COLUMN 3: LAST 365 DAYS -->
+  <div class="bg-white rounded-2xl shadow p-4">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">Last 365 Days Totals</h2>
+    {% for card in cards %}
+      {% if card.period == "Last 365 Days" %}
+        <div class="{{ card.color_class }} w-full py-2 px-3 mb-3 rounded-xl shadow-sm">
+          <div class="text-center font-bold text-base mb-1">{{ card.emoji }} {{ card.title }}</div>
+          <div class="text-2xl font-extrabold text-gray-800 text-center">{{ card.count }}</div>
+        </div>
+      {% endif %}
+    {% endfor %}
   </div>
+
 </div>
-
 
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

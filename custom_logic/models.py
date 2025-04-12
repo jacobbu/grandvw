@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.conf import settings
 
 User = get_user_model()
 
@@ -83,3 +84,12 @@ class CustomMetricCard(models.Model):
 
     def __str__(self):
         return f"{self.user.username}: {self.title} ({self.event_type} - {self.period})"
+    
+
+class SMSRecipient(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sms_recipients')
+    phone_number = models.CharField(max_length=15)
+    event_types = models.JSONField(default=list)  # e.g. ["KIT_ERROR", "KIT_SUCCESS"]
+
+    def __str__(self):
+        return f"{self.phone_number} for {self.user.username}"

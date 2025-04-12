@@ -8,32 +8,52 @@
         <title>{% block title %}{% endblock %} | grandvw.io</title>
     </head>
     <body class="h-full flex flex-col bg-gray-400">
-        <nav class="p-6 flex items-center justify-between bg-gray-400 relative">
-            <!-- Left (logo) -->
-            <div class="flex-1">
+        <nav class="p-6 bg-gray-400 relative">
+            <div class="flex items-center justify-between">
+              
+              <!-- Left (logo) -->
+              <div class="flex-1">
                 <a href="/" class="text-xl text-white">_/\_ grandvw.io</a>
-            </div>
-        
-            <!-- Center (username) -->
-            <div class="absolute left-1/2 transform -translate-x-1/2">
+              </div>
+          
+              <!-- Center (username) -->
+              <div class="absolute left-1/2 transform -translate-x-1/2 hidden sm:block">
                 {% if request.user.is_authenticated %}
-                    <span class="text-white text-lg"><i>{{ request.user.username }}</i></span>
+                  <span class="text-white text-lg"><i>{{ request.user.username }}</i></span>
                 {% endif %}
-            </div>
-        
-            <!-- Right (nav links) -->
-            <div class="space-x-4">
+              </div>
+          
+              <!-- Mobile menu button -->
+              <div class="sm:hidden">
+                <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="text-white focus:outline-none">
+                  ☰
+                </button>
+              </div>
+          
+              <!-- Desktop nav links -->
+              <div class="hidden sm:flex space-x-4">
                 {% if request.user.is_authenticated %}
-                    <a href="{% url 'core:dashboard' %}" class="text-white">Dashboard</a>   
-                    <a href="{% url 'user_charts' %}" class="text-white">Charts</a>
-                    <a href="{% url 'video:videos' %}" class="text-white">Video Streams</a>                 
+                  <a href="{% url 'core:dashboard' %}" class="text-white">Dashboard</a>
+                  <a href="{% url 'user_charts' %}" class="text-white">Charts</a>
+                  <a href="{% url 'video:videos' %}" class="text-white">Video Streams</a>
                 {% else %}
-                <!--    <a href="{% url 'core:about' %}" class="text-white">About</a>   -->
-                <!--    <a href="{% url 'accounts:signup' %}" class="py-3 px-4 bg-white text-gray-800 rounded-xl">Sign up</a>   -->
-                    <a href="{% url 'accounts:login' %}" class="py-3 px-4 bg-white text-gray-800 rounded-xl">Log in</a>
+                  <a href="{% url 'accounts:login' %}" class="py-3 px-4 bg-white text-gray-800 rounded-xl">Log in</a>
                 {% endif %}
+              </div>
             </div>
-        </nav>
+          
+            <!-- Mobile dropdown menu -->
+            <div id="mobileMenu" class="mt-4 space-y-2 sm:hidden hidden">
+              {% if request.user.is_authenticated %}
+                <a href="{% url 'core:dashboard' %}" class="block text-white">Dashboard</a>
+                <a href="{% url 'user_charts' %}" class="block text-white">Charts</a>
+                <a href="{% url 'video:videos' %}" class="block text-white">Video Streams</a>
+              {% else %}
+                <a href="{% url 'accounts:login' %}" class="block py-2 px-4 bg-white text-gray-800 rounded-xl">Log in</a>
+              {% endif %}
+            </div>
+          </nav>
+          
 
         <main class="flex-1">
             <div class="h-full w-full bg-white p-6 shadow-md">
@@ -55,7 +75,7 @@
                 {% if request.user.is_authenticated %}
                     <form method="POST" action="{% url 'logout' %}">
                         {% csrf_token %}
-                        <button class="text-xs py-1 px-2 bg-gray-400 text-gray-800 rounded-xl" type="submit">
+                        <button class="text-xs py-1 px-2 bg-gray-200 text-gray-800 rounded-xl" type="submit">
                             Logout
                         </button>
                     </form>

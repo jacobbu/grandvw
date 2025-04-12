@@ -28,15 +28,18 @@
 
   <div class="rounded-2xl bg-white shadow p-6 mb-8">
     <h2 class="text-2xl font-bold mb-4">Recent Events</h2>
-      <table class="w-full text-left border-collapse">
+  
+    <!-- Responsive Table Wrapper -->
+    <div class="w-full overflow-x-auto">
+      <table class="min-w-full text-left border-collapse">
         <thead>
           <tr>
-            <th class="py-2 px-4 border-b">Time</th>
-            <th class="py-2 px-4 border-b">Camera</th>
-            <th class="py-2 px-4 border-b">Type</th>
-            <th class="py-2 px-4 border-b">Packed by</th>
-            <th class="py-2 px-4 border-b">Details</th>
-            <th class="py-2 px-4 border-b">Visual (Click for GIF)</th> <!-- GIF column -->
+            <th class="py-2 px-4 border-b whitespace-nowrap">Time</th>
+            <th class="py-2 px-4 border-b whitespace-nowrap">Camera</th>
+            <th class="py-2 px-4 border-b whitespace-nowrap">Type</th>
+            <th class="py-2 px-4 border-b whitespace-nowrap">Packed by</th>
+            <th class="py-2 px-4 border-b whitespace-nowrap">Details</th>
+            <th class="py-2 px-4 border-b whitespace-nowrap">Visual (Click for GIF)</th>
           </tr>
         </thead>
         <tbody>
@@ -48,7 +51,7 @@
             <td class="py-2 px-4 border-b">{{ event.people }}</td>
             <td class="py-2 px-4 border-b">{{ event.details }}</td>
             <td class="py-2 px-4 border-b">
-                {% if event.gif %}
+              {% if event.gif %}
                 <img
                   src="{% if event.gif_thumb %}{{ event.gif_thumb.url }}{% else %}{% static 'core/img/play-preview.png' %}{% endif %}"
                   data-gif-url="{{ event.gif.url }}"
@@ -56,9 +59,9 @@
                   class="w-32 border rounded shadow cursor-pointer hover:scale-105 transition"
                   onclick="openGifModal(this.dataset.gifUrl)"
                 >
-                {% else %}
+              {% else %}
                 <span class="text-gray-400 italic">No visual</span>
-                {% endif %}
+              {% endif %}
             </td>
           </tr>
           {% empty %}
@@ -68,7 +71,9 @@
           {% endfor %}
         </tbody>
       </table>
-
+    </div>
+  
+    <!-- GIF Modal -->
     <div id="gifModal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden justify-center items-center">
       <div class="relative">
         <img id="gifModalImage" src="" alt="Full GIF" class="max-h-[80vh] rounded shadow-xl border-2 border-white">
@@ -77,7 +82,7 @@
         </button>
       </div>
     </div>
-
+  
     <script>
       function openGifModal(gifUrl) {
         const modal = document.getElementById('gifModal');
@@ -86,13 +91,13 @@
         modal.classList.remove('hidden');
         modal.classList.add('flex');
       }
-    
+  
       function closeGifModal() {
         const modal = document.getElementById('gifModal');
         modal.classList.remove('flex');
         modal.classList.add('hidden');
       }
-    
+  
       document.getElementById('gifModal').addEventListener('click', function(e) {
         if (e.target === this) {
           closeGifModal();
@@ -100,4 +105,5 @@
       });
     </script>
   </div>
+  
 {% endblock %}

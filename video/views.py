@@ -8,7 +8,16 @@ from .models import Video, Event
 
 @login_required
 def videos(request):
-    videos = Video.objects.filter(created_by=request.user).select_related('yolo_model')  # add select_related
+    videos = Video.objects.filter(created_by=request.user).select_related('yolo_model')
+
+    for video in videos:
+        latest_event = Event.objects.filter(camera=video, user=request.user).order_by('-timestamp').first()
+
+        if latest_event and latest_event.gif:
+            video.latest_gif_url = latest_event.gif.url
+        else:
+            video.latest_gif_url = None
+
     return render(request, 'video/videos.html', {
         'videos': videos,
     })

@@ -5,6 +5,7 @@ __pycache__/
 
 # Virtual environment
 venv/
+env/
 
 # Django stuff
 *.sqlite3
@@ -19,8 +20,7 @@ venv/
 staticfiles/
 
 # Local settings / secrets
-venv/
-env/
+.env
 
 # macOS / Windows junk
 .DS_Store

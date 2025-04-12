@@ -3,26 +3,55 @@
 {% block title %}Welcome{% endblock %} 
 
 {% block content %}
-{% if request.user.is_authenticated %}
-    <h1 class="text-xl mb-4 text-center">Welcome back! Let's get started!</h1>
-{% else %}
-    <h1 class="text-xl mb-4 text-center">Welcome to grandvw.io!</h1>
-    <p class="text-l mb-4 text-center">Log in or watch the demo video to learn more.</p>
-    </br>
-    </br>
-{% endif %}
-    <div class="px-10">
-        <div class="w-full h-120">
-            <iframe class="w-full h-120" 
-                    src="https://www.youtube.com/embed/_SHaZBhOq28" 
-                    title="Watch the demo" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowfullscreen>
-            </iframe>
-        </div>
+
+<div class="flex flex-col items-center justify-center text-center px-4 py-16 space-y-10 bg-white rounded-2xl shadow-md">
+
+  {% if request.user.is_authenticated %}
+    <h1 class="text-3xl font-extrabold text-gray-800">Welcome back 👋</h1>
+    <p class="text-lg text-gray-600">Let's get started by visiting your dashboard.</p>
+    <a href="{% url 'core:dashboard' %}" class="mt-4 inline-block px-6 py-3 bg-gray-800 text-white text-sm font-semibold rounded-xl shadow hover:bg-gray-700 transition">
+      Go to Dashboard
+    </a>
+
+  {% else %}
+    <div class="max-w-2xl">
+      <h1 class="text-4xl font-extrabold text-gray-900 mb-4">Welcome to <span class="text-green-800">grandvw.io</span></h1>
+      <p class="text-lg text-gray-600 mb-6">An intelligent video platform for real-time detection, alerts, and analytics. Watch the demo or log in to explore the system.</p>
+      
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+        <a href="{% url 'core:about' %}" class="px-6 py-3 bg-gray-800 text-white text-sm font-semibold rounded-xl shadow hover:bg-gray-500 transition">
+          Learn More
+        </a>
+        <a href="{% url 'accounts:signup' %}" class="px-6 py-3 bg-gray-100 text-gray-800 text-sm font-semibold rounded-xl shadow hover:bg-gray-200 transition">
+          Sign Up
+        </a>
+      </div>
     </div>
-    
-    </br>
-    <h3 class="text-l mb-4 text-center">For more information, please email jacob@grandvw.io.</h3>
+  {% endif %}
+
+  <!-- Arrow Label -->
+  <div class="flex flex-col items-center mt-10">
+    <p class="text-gray-700 font-semibold text-md mb-2">Watch the demo 👇</p>
+    <!-- Optional SVG Arrow -->
+    <svg class="w-6 h-6 text-blue-600 animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+
+  <!-- DEMO VIDEO -->
+  <div id="demo" class="w-full max-w-3xl">
+    <div class="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg border">
+      <iframe 
+        class="w-full h-full" 
+        src="https://www.youtube.com/embed/_SHaZBhOq28" 
+        title="Watch the demo" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        allowfullscreen>
+      </iframe>
+    </div>
+  </div>
+
+</div>
+
 {% endblock %}

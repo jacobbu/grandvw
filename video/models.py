@@ -22,7 +22,7 @@ class Video(models.Model):
     yolo_model = models.ForeignKey(YOLOModel, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return self.title 
+        return self.name 
 
 
 class Detection(models.Model):

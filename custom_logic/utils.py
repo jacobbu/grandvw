@@ -2,6 +2,10 @@ import importlib
 import json
 from .models import CustomChart
 from django.core.serializers.json import DjangoJSONEncoder
+from twilio.rest import Client
+from django.conf import settings
+from dotenv import load_dotenv
+import os
 
 
 def load_logic(import_path):
@@ -37,3 +41,16 @@ def get_rendered_charts(user, page_key, context_data):
                 "error": str(e),
             })
     return charts
+
+
+load_dotenv()
+
+def send_sms(to_number, message):
+    print(f"📲 Sending to {to_number}: {message}") 
+    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+    client.messages.create(
+        body=message,
+        from_=settings.TWILIO_PHONE_NUMBER,
+        to=to_number
+    )
+    

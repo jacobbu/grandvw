@@ -3,5 +3,39 @@
 {% block title %}About{% endblock %} 
 
 {% block content %}
-    <h1 class="text-xl">About grandvw.io</h1>
-{% endblock %} 
+
+<div class="max-w-4xl mx-auto py-16 px-6 text-center space-y-10 bg-white rounded-2xl shadow">
+
+  <h1 class="text-4xl font-extrabold text-gray-900">About <span class="text-green-800">grandvw.io</span></h1>
+
+  <p class="text-lg text-gray-600 leading-relaxed">
+    <span class="font-semibold text-gray-800">grandvw.io</span> is a smart video analytics platform designed to help teams monitor, track, and evaluate operations in real-time. Whether you’re managing safety protocols, tracking equipment, or automating alerts, our tools empower you to stay informed and act faster.
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left text-gray-700">
+    <div class="space-y-2">
+      <h2 class="text-xl font-semibold text-gray-800">🎯 Mission</h2>
+      <p>To simplify real-time video analysis and deliver actionable insights across industries through a user-friendly, scalable platform.</p>
+    </div>
+
+    <div class="space-y-2">
+      <h2 class="text-xl font-semibold text-gray-800">⚙️ How It Works</h2>
+      <p>We use AI-powered object detection and customizable dashboards to convert video streams into structured data — complete with alerts, summaries, and visualizations.</p>
+    </div>
+
+    <div class="space-y-2">
+      <h2 class="text-xl font-semibold text-gray-800">🚀 Built For</h2>
+      <p>Operators, safety teams, and technical managers looking to improve visibility, accountability, and automation in dynamic environments.</p>
+    </div>
+  </div>
+
+  <div class="pt-8 border-t">
+    <p class="text-sm text-gray-500">Want to learn more or get started?</p>
+    <a href="mailto:jacob@grandvw.io" class="mt-2 inline-block px-6 py-3 bg-gray-800 text-white text-sm font-semibold rounded-xl shadow hover:bg-gray-500 transition">
+      Contact Us
+    </a>
+  </div>
+
+</div>
+
+{% endblock %}

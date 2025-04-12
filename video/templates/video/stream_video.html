@@ -2,23 +2,45 @@
 {% block title %}Streaming {{ video.name }}{% endblock %}
 
 {% block content %}
-<h2 class="text-xl font-bold mb-4">Live Stream: {{ video.name }}</h2>
-<p class="text-gray-500 text-sm mb-4">RTSP Source: {{ video.rtsp }}</p>
 
-<div style="display: flex; gap: 20px;">
-  <div>
-    <h3 class="text-md font-semibold mb-1">Original</h3>
-    <canvas id="originalCanvas" width="640" height="480" class="border shadow"></canvas>
+<div class="flex flex-col items-center justify-center text-center space-y-6">
+  <h2 class="text-2xl font-bold">Live Stream: {{ video.name }}</h2>
+
+  <!-- Annotated video -->
+  <div class="w-full max-w-[640px] aspect-[4/3] border shadow">
+    <canvas id="annotatedCanvas" class="w-full h-full"></canvas>
   </div>
-  <div>
-    <h3 class="text-md font-semibold mb-1">Annotated</h3>
-    <canvas id="annotatedCanvas" width="640" height="480" class="border shadow"></canvas>
+
+  <!-- Camera Info Section -->
+  <div class="w-full max-w-[640px] bg-white p-4 rounded-2xl shadow-md text-left space-y-2">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Camera Info</h3>
+
+    <p><strong>Name:</strong> {{ video.name }}</p>
+    <p><strong>Image Detection Model:</strong> {{ video.yolo_model.title }}</p>
+    <p><strong>Created By:</strong> {{ video.created_by }}</p>
+
+    <!-- Toggleable RTSP source -->
+    <div>
+      <button onclick="toggleRTSP()" class="text-blue-600 underline hover:text-blue-800 text-sm">
+        Show RTSP Source
+      </button>
+      <p id="rtspSource" class="text-gray-500 text-sm mt-2 hidden break-all">
+        {{ video.rtsp }}
+      </p>
+    </div>
   </div>
 </div>
 
-<script>console.log("WebSocket init for video {{ video.id }}");</script>
+<!-- RTSP Toggle Script -->
+<script>
+  function toggleRTSP() {
+    const rtsp = document.getElementById("rtspSource");
+    rtsp.classList.toggle("hidden");
+  }
+</script>
 
-<div id="eventAlert" class="hidden mb-4 p-4 rounded-lg shadow-md text-white font-semibold" role="alert">
+<!-- Event Alert Box -->
+<div id="eventAlert" class="hidden my-6 p-4 rounded-lg shadow-md text-white font-semibold" role="alert">
   <div class="flex justify-between items-center">
     <span id="eventMessage">Event message</span>
     <button onclick="document.getElementById('eventAlert').classList.add('hidden')" class="ml-4 focus:outline-none">
@@ -27,46 +49,32 @@
   </div>
 </div>
 
-
+<!-- WebSocket Video Rendering Script -->
 <script>
-  const originalCanvas = document.getElementById('originalCanvas');
-  const annotatedCanvas = document.getElementById('annotatedCanvas');
-  const ctxOriginal = originalCanvas.getContext('2d');
-  const ctxAnnotated = annotatedCanvas.getContext('2d');
+  const canvas = document.getElementById('annotatedCanvas');
+  const ctx = canvas.getContext('2d');
 
   const alertBox = document.getElementById('eventAlert');
   const eventMessage = document.getElementById('eventMessage');
   const latestStatus = document.getElementById('latestStatus');
 
-  
   const socket = new WebSocket("wss://grandvw.io/stream/{{ video.id }}");
-
 
   socket.onmessage = function(event) {
     const data = JSON.parse(event.data);
 
-    // Render frames
-    if (data.original) {
-      const imgOriginal = new Image();
-      imgOriginal.onload = () => {
-        ctxOriginal.clearRect(0, 0, originalCanvas.width, originalCanvas.height);
-        ctxOriginal.drawImage(imgOriginal, 0, 0, originalCanvas.width, originalCanvas.height);
-      };
-      imgOriginal.src = 'data:image/jpeg;base64,' + data.original;
-    }
-
     if (data.annotated) {
-      const imgAnnotated = new Image();
-      imgAnnotated.onload = () => {
-        ctxAnnotated.clearRect(0, 0, annotatedCanvas.width, annotatedCanvas.height);
-        ctxAnnotated.drawImage(imgAnnotated, 0, 0, annotatedCanvas.width, annotatedCanvas.height);
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       };
-      imgAnnotated.src = 'data:image/jpeg;base64,' + data.annotated;
+      img.src = 'data:image/jpeg;base64,' + data.annotated;
     }
 
-    // Handle event alert
     if (data.event_type && data.message) {
-      // Set alert box color and message
       alertBox.classList.remove('hidden', 'bg-green-500', 'bg-red-500');
 
       if (data.event_type === "KIT_SUCCESS") {
@@ -76,7 +84,7 @@
       }
 
       eventMessage.textContent = data.message;
-      latestStatus.textContent = data.message;
+      if (latestStatus) latestStatus.textContent = data.message;
     }
   };
 
