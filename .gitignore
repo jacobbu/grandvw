@@ -19,6 +19,9 @@ env/
 # Static files (after collectstatic)
 staticfiles/
 
+# gifs, thumbnails, yolo models
+media/
+
 # Local settings / secrets
 .env
 
