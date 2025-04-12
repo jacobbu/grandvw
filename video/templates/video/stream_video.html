@@ -58,7 +58,9 @@
   const eventMessage = document.getElementById('eventMessage');
   const latestStatus = document.getElementById('latestStatus');
 
+  
   const socket = new WebSocket("wss://grandvw.io/stream/{{ video.id }}");
+
 
   socket.onmessage = function(event) {
     const data = JSON.parse(event.data);

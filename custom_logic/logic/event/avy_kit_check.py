@@ -83,14 +83,14 @@ def evaluate_event(context):
 
     # Start timer on Backpack detection
     if "Backpack" in labels and key not in active_windows:
-        # Start a 30s window
+        # Start a 60s window
         window_data = {
             "found": {"Backpack"},
             "start_time": datetime.now(),
             "video": video,
             "frames": []
         }
-        timer = threading.Timer(30.0, finalize_event, args=[user, video.id, window_data])
+        timer = threading.Timer(60.0, finalize_event, args=[user, video.id, window_data])
         window_data["timer"] = timer
         active_windows[key] = window_data
         timer.start()

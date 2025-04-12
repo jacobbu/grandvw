@@ -29,7 +29,6 @@ FRAME_WIDTH = 2304
 FRAME_HEIGHT = 1296
 semaphore = asyncio.Semaphore(MAX_CONNECTIONS)
 
-
 @sync_to_async
 def get_video_and_model(video_id):
     video = Video.objects.select_related('yolo_model').get(id=video_id)
@@ -94,7 +93,8 @@ async def save_detections(result, video_obj, frame):
 def start_ffmpeg(rtsp_url):
     cmd = [
         'ffmpeg', '-rtsp_transport', 'tcp', '-i', rtsp_url,
-        '-loglevel', 'quiet', '-an',
+        '-loglevel', 'error',
+        '-an',
         '-f', 'image2pipe', '-pix_fmt', 'bgr24', '-vcodec', 'rawvideo', '-'
     ]
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
@@ -119,23 +119,51 @@ async def video_stream(websocket, path):
         detection_tasks = []
         restart_attempts = 0
 
+        await asyncio.sleep(2)
+
         try:
             while True:
-                raw_frame = ffmpeg_proc.stdout.read(FRAME_WIDTH * FRAME_HEIGHT * 3)
-                if not raw_frame:
-                    print("[WARNING] No frame data received, restarting ffmpeg...")
-                    ffmpeg_proc.terminate()
-                    try:
-                        os.killpg(os.getpgid(ffmpeg_proc.pid), signal.SIGTERM)
-                    except ProcessLookupError:
-                        pass
-                    ffmpeg_proc.wait()
+                if websocket.closed:
+                    print("[INFO] WebSocket closed, breaking out of stream loop.")
+                    break
 
+                try:
+                    raw_frame = await asyncio.wait_for(
+                        asyncio.to_thread(ffmpeg_proc.stdout.read, FRAME_WIDTH * FRAME_HEIGHT * 3),
+                        timeout=10.0
+                    )
+                except asyncio.TimeoutError:
+                    print("[WARNING] Frame read timeout. Restarting ffmpeg...")
+                    try:
+                        if ffmpeg_proc and ffmpeg_proc.poll() is None:
+                            ffmpeg_proc.terminate()
+                            os.killpg(os.getpgid(ffmpeg_proc.pid), signal.SIGTERM)
+                            ffmpeg_proc.wait(timeout=5)
+                    except Exception:
+                        pass
                     restart_attempts += 1
                     if restart_attempts > 3:
                         print("[ERROR] FFmpeg failed too many times, ending stream.")
                         break
                     ffmpeg_proc = start_ffmpeg(rtsp_url)
+                    await asyncio.sleep(2)
+                    continue
+
+                if not raw_frame:
+                    print("[WARNING] No frame data received, restarting ffmpeg...")
+                    try:
+                        if ffmpeg_proc and ffmpeg_proc.poll() is None:
+                            ffmpeg_proc.terminate()
+                            os.killpg(os.getpgid(ffmpeg_proc.pid), signal.SIGTERM)
+                            ffmpeg_proc.wait(timeout=5)
+                    except Exception:
+                        pass
+                    restart_attempts += 1
+                    if restart_attempts > 3:
+                        print("[ERROR] FFmpeg failed too many times, ending stream.")
+                        break
+                    ffmpeg_proc = start_ffmpeg(rtsp_url)
+                    await asyncio.sleep(2)
                     continue
 
                 try:
@@ -151,7 +179,6 @@ async def video_stream(websocket, path):
                     print("[ERROR] YOLO inference failed:", e)
                     continue
 
-                # Save detection task
                 task = asyncio.create_task(save_detections(results[0], video_obj, frame))
                 detection_tasks.append(task)
 
@@ -170,8 +197,8 @@ async def video_stream(websocket, path):
                         'original': original_b64,
                         'annotated': annotated_b64,
                     }))
-                except websockets.exceptions.ConnectionClosed:
-                    print("[INFO] WebSocket client disconnected")
+                except websockets.exceptions.ConnectionClosed as e:
+                    print(f"[INFO] WebSocket client disconnected: {e.code} - {e.reason}")
                     break
                 except Exception as e:
                     print("[ERROR] Failed to send frame to client:", e)
@@ -184,10 +211,27 @@ async def video_stream(websocket, path):
 
         finally:
             print(f"[INFO] Closing stream for video ID: {video_id}")
+
+            for task in detection_tasks:
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+                except Exception as e:
+                    print("[WARNING] Error cancelling detection task:", e)
+
             try:
-                ffmpeg_proc.terminate()
-                os.killpg(os.getpgid(ffmpeg_proc.pid), signal.SIGTERM)
-                ffmpeg_proc.wait()
+                if ffmpeg_proc and ffmpeg_proc.poll() is None:
+                    print("[CLEANUP] Terminating ffmpeg process group")
+                    ffmpeg_proc.terminate()
+                    os.killpg(os.getpgid(ffmpeg_proc.pid), signal.SIGTERM)
+                    ffmpeg_proc.wait(timeout=5)
+                else:
+                    print("[CLEANUP] FFmpeg already exited.")
+            except subprocess.TimeoutExpired:
+                print("[FORCE] Killing unresponsive ffmpeg process")
+                os.killpg(os.getpgid(ffmpeg_proc.pid), signal.SIGKILL)
             except Exception as e:
                 print("[WARNING] FFmpeg shutdown failed:", e)
 
