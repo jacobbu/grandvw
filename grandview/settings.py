@@ -84,7 +84,7 @@ TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dev_db',
+        'NAME': 'grandview_database',
         'USER': 'admin',
         'PASSWORD': 'Buf57alo!',
         'HOST': 'database-3.cno4i48oy39h.us-east-2.rds.amazonaws.com',

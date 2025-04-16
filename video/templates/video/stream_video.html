@@ -59,8 +59,7 @@
   const latestStatus = document.getElementById('latestStatus');
 
   
-  // const socket = new WebSocket("wss://grandvw.io/stream/{{ video.id }}");
-  const socket = new WebSocket("ws://127.0.0.1:8001/stream/{{ video.id }}");
+  const socket = new WebSocket("wss://grandvw.io/stream/{{ video.id }}");
 
 
   socket.onmessage = function(event) {
