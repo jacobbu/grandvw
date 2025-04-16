@@ -2,13 +2,21 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.utils.text import slugify
 
 User = get_user_model()
 
 class EventDefinition(models.Model):
     name = models.CharField(max_length=255)
     import_path = models.CharField(max_length=255)
+    event_definition_code = models.TextField(blank=True)
     description = models.TextField(blank=True)
+    slug = models.SlugField(unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -89,7 +97,18 @@ class CustomMetricCard(models.Model):
 class SMSRecipient(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sms_recipients')
     phone_number = models.CharField(max_length=15)
-    event_types = models.JSONField(default=list)  # e.g. ["KIT_ERROR", "KIT_SUCCESS"]
+    event_types = models.JSONField(default=list)
 
     def __str__(self):
         return f"{self.phone_number} for {self.user.username}"
+    
+class DetectionLabel(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    label = models.CharField(max_length=100)
+    description = models.TextField()
+    image_with_box = models.ImageField(upload_to="label_examples/", blank=True, null=True)
+    
+class ModelPerformanceImage(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    description = models.TextField()
+    image = models.ImageField(upload_to="model_performance/")

@@ -75,6 +75,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "grandview.wsgi.application"
 
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -82,7 +84,7 @@ WSGI_APPLICATION = "grandview.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'grandview_database',
+        'NAME': 'dev_db',
         'USER': 'admin',
         'PASSWORD': 'Buf57alo!',
         'HOST': 'database-3.cno4i48oy39h.us-east-2.rds.amazonaws.com',

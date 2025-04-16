@@ -1,0 +1,16 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ label.label }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6 space-y-6">
+  <h1 class="text-3xl font-bold">{{ label.label }}</h1>
+  <p class="text-gray-600">{{ label.description|linebreaksbr }}</p>
+
+  {% if label.image_with_box %}
+    <img src="{{ label.image_with_box.url }}" alt="{{ label.label }}" class="rounded shadow max-w-full">
+  {% else %}
+    <p class="text-gray-500 italic">No example image available.</p>
+  {% endif %}
+</div>
+{% endblock %}

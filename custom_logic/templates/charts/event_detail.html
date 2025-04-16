@@ -1,0 +1,15 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ event.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6 space-y-6">
+  <h1 class="text-3xl font-bold">{{ event.name }}</h1>
+  <p class="text-gray-600"><strong>Import Path:</strong> {{ event.import_path }}</p>
+  {% if event.event_definition_code %}
+    <pre class="bg-gray-100 p-4 rounded text-sm">{{ event.description }}</pre>
+  {% else %}
+    <p class="text-sm italic text-gray-500">This event uses the default logic file.</p>
+  {% endif %}
+</div>
+{% endblock %}

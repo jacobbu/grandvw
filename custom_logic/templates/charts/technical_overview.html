@@ -1,0 +1,105 @@
+{% extends "core/base.html" %}
+{% block title %}Account Overview{% endblock %}
+{% block content %}
+
+<div class="max-w-6xl mx-auto p-6 space-y-12">
+
+  <!-- Custom Events -->
+  <div>
+    <h2 class="text-2xl font-bold mb-4">Custom Events</h2>
+    <ul class="grid gap-4 md:grid-cols-2">
+      {% for event in events %}
+        {% if event.slug %}
+          <a href="{% url 'event_detail' event.slug %}" class="block">
+            <li class="bg-white shadow p-4 rounded-xl hover:bg-gray-50 transition">
+              <h3 class="text-lg font-semibold">{{ event.name }}</h3>
+            </li>
+          </a>
+        {% else %}
+          <li class="bg-gray-100 shadow p-4 rounded-xl">
+            <h3 class="text-lg font-semibold text-gray-400">{{ event.name }}</h3>
+            <p class="text-gray-400 italic">No slug available</p>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Object Detections -->
+  <div>
+    <h2 class="text-2xl font-bold mb-4">Trained Object Labels</h2>
+    <ul class="grid gap-4 md:grid-cols-3">
+      {% for label in detections %}
+        <a href="{% url 'label_detail' label.id %}" class="block">
+          <li class="bg-white shadow p-4 rounded-xl hover:bg-gray-50 transition space-y-3">
+            {% if label.image_with_box %}
+              <img src="{{ label.image_with_box.url }}" alt="{{ label.label }}"
+                   class="w-full h-40 object-cover rounded-md shadow-sm">
+            {% else %}
+              <div class="w-full h-40 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 italic">
+                No image
+              </div>
+            {% endif %}
+            <h3 class="text-lg font-semibold">{{ label.label }}</h3>
+          </li>
+        </a>
+      {% endfor %}
+    </ul>
+  </div>
+  
+
+  <!-- Model Performance -->
+  <div>
+    <h2 class="text-2xl font-bold mb-4">Model Performance</h2>
+    <div class="grid md:grid-cols-2 gap-6">
+      {% for image in model_performance_images %}
+        <a href="{% url 'model_performance_detail' image.id %}" class="block">
+          <div class="bg-white rounded-xl shadow overflow-hidden hover:bg-gray-50 transition">
+            {% if image.image %}
+              <img src="{{ image.image.url }}" class="w-full h-48 object-cover">
+            {% endif %}
+            <div class="p-4 text-sm text-gray-600 whitespace-pre-line">
+              {{ image.description|truncatewords:20 }}
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- SMS Alerts -->
+  <div>
+    <h2 class="text-2xl font-bold mb-4">SMS Alerts</h2>
+    <ul class="grid gap-4 md:grid-cols-2">
+      {% for recipient in sms_alerts %}
+        <a href="{% url 'sms_recipient_detail' recipient.id %}" class="block">
+          <li class="bg-white shadow p-4 rounded-xl hover:bg-gray-50 transition space-y-2">
+            <h3 class="text-lg font-semibold">📱 {{ recipient.phone_number }}</h3>
+            <p class="text-sm text-gray-600">
+              <strong>Triggers:</strong>
+              {{ recipient.event_types|join:", " }}
+            </p>
+          </li>
+        </a>
+      {% endfor %}
+    </ul>
+  </div>
+
+ <!-- Graphs -->
+ <div>
+  <h2 class="text-2xl font-bold mb-4">Custom Charts</h2>
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for graph in graphs %}
+      <a href="{% url 'chart_detail' graph.slug %}" class="block">
+        <div class="bg-white shadow p-4 rounded-xl hover:bg-gray-50 transition">
+          <h3 class="text-lg font-semibold text-gray-800">{{ graph.name }}</h3>
+        </div>
+      </a>
+    {% empty %}
+      <p class="text-gray-500 italic">No charts available.</p>
+    {% endfor %}
+  </div>
+</div>
+
+
+{% endblock %}
