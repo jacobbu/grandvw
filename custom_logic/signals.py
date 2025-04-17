@@ -12,5 +12,5 @@ def notify_sms_recipients(sender, instance, created, **kwargs):
     recipients = SMSRecipient.objects.filter(user=instance.user)
     for recipient in recipients:
         if instance.event_type in recipient.event_types:
-            message = f"Event Alert: {instance.event_type} at {instance.timestamp.strftime('%Y-%m-%d %H:%M:%S')}"
+            message = recipient.render_message(instance)
             send_sms(recipient.phone_number, message)

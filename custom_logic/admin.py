@@ -42,5 +42,7 @@ class ModelPerformanceImageAdmin(admin.ModelAdmin):
 class SMSRecipientAdmin(admin.ModelAdmin):
     list_display = ('phone_number', 'user', 'event_types')
     search_fields = ('phone_number', 'user__username')
+    list_filter = ('user',)
+    fields = ('user', 'phone_number', 'event_types', 'message_template')
 
 admin.site.register(SMSRecipient, SMSRecipientAdmin)

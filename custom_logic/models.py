@@ -98,9 +98,33 @@ class SMSRecipient(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sms_recipients')
     phone_number = models.CharField(max_length=15)
     event_types = models.JSONField(default=list)
+    message_template = models.TextField(
+        blank=True,
+        help_text=(
+            "Custom message format. You can use these placeholders: "
+            "{event_type}, {timestamp}, {camera}, {user}, {gif_url}"
+        )
+    )
 
     def __str__(self):
         return f"{self.phone_number} for {self.user.username}"
+
+    def render_message(self, event):
+        context = {
+            "event_type": event.event_type,
+            "timestamp": event.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            "camera": event.camera.name if event.camera else "Unknown Camera",
+            "user": event.user.username,
+            "gif_url": event.gif.url if event.gif else None,
+        }
+
+        if self.message_template:
+            return self.message_template.format(**context)
+
+        message = f"[grandvw.io] {context['event_type']} at {context['timestamp']} on {context['camera']}."
+        if context["gif_url"]:
+            message += f" View: {context['gif_url']}"
+        return message
     
 class DetectionLabel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
