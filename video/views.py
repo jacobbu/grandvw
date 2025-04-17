@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
+from django.conf import settings
+import os
 
 from .forms import VideoForm
 from .models import Video, Event
@@ -57,9 +59,16 @@ def edit_video(request, video_id):
         form = VideoForm(instance=video, user=request.user)
     return render(request, 'video/edit_video.html', {'form': form, 'video': video})
 
+@login_required
 def stream_video(request, video_id):
     video = get_object_or_404(Video, id=video_id, created_by=request.user)
-    return render(request, 'video/stream_video.html', {'video': video})
+
+    ws_base_url = os.environ.get('WS_BASE_URL')
+
+    return render(request, "video/stream_video.html", {
+        "video": video,
+        "ws_base_url": ws_base_url,
+    })
 
 @login_required
 def dashboard(request):

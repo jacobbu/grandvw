@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-@hv%%&thpb#o0drq%!-x*6cbfd2scm+x9f+shhc%c0x7je(#-2"
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,6 +77,7 @@ WSGI_APPLICATION = "grandview.wsgi.application"
 
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 
+WS_BASE_URL = os.getenv("WS_BASE_URL")
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -84,11 +85,11 @@ TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'grandview_database',
-        'USER': 'admin',
-        'PASSWORD': 'Buf57alo!',
-        'HOST': 'database-3.cno4i48oy39h.us-east-2.rds.amazonaws.com',
-        'PORT': '3306',
+        'NAME': os.getenv("DB_NAME"),
+        'USER': os.getenv("DB_USER"),
+        'PASSWORD': os.getenv("DB_PASSWORD"),
+        'HOST': os.getenv("DB_HOST"),
+        'PORT': os.getenv("DB_PORT"),
     }
 }
 
