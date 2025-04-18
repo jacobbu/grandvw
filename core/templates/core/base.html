@@ -1,9 +1,28 @@
 <!doctype html>
 <html class="h-full">
   <head>
+    <style>
+      @keyframes blurIn {
+        0% {
+          opacity: 0;
+          filter: blur(8px);
+          transform: scale(1.05);
+        }
+        100% {
+          opacity: 1;
+          filter: blur(0);
+          transform: scale(1);
+        }
+      }
+    
+      .animate-blur-in {
+        animation: blurIn 0.8s ease-out forwards;
+      }
+    </style>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="icon" type="image/x-icon" href="/media/favicon.ico">
     <title>{% block title %}{% endblock %} | grandvw.io</title>
   </head>
 
@@ -13,10 +32,11 @@
     <nav class="bg-white shadow-md px-6 py-4">
       <div class="max-w-7xl mx-auto flex items-center justify-between">
         
-        <!-- Logo -->
-        <a href="/" class="text-2xl font-bold text-blue-800 tracking-wide">
-          _/\_ grandvw.io
-        </a>
+    <!-- Logo -->
+    <a href="/" class="flex items-center space-x-2 text-2xl font-bold text-blue-800 tracking-wide transition duration-500 transform hover:scale-105 group animate-blur-in">
+      <img src="/media/banner_logo_blue800.png" alt="_/\_" class="h-12 w-auto transition duration-300 transform group-hover:scale-110">
+      <span class="transition duration-300 group-hover:text-blue-600">grandvw.io</span>
+    </a>
 
 
         <!-- Nav links -->

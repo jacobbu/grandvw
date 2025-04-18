@@ -21,24 +21,22 @@
 
   <!-- Today Cards Section -->
   <div class="w-full px-4 sm:px-6 lg:px-8 my-10">
-    <div class="max-w-7xl mx-auto rounded-2xl bg-white shadow-md p-6">
+    <div class="max-w-7xl mx-auto rounded-2xl bg-white shadow-md p-4">
       {% now "F j, Y" as today_date %}
-      <h2 class="text-xl font-bold text-gray-800 mb-6">Today's Totals — {{ today_date }}</h2>
+      <h2 class="text-lg font-bold text-gray-800 mb-4">Today's Totals — {{ today_date }}</h2>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {% for card in cards %}
           {% if card.period == "Today" %}
-            <div class="{{ card.color_class }} p-6 rounded-2xl shadow-md flex flex-col justify-between h-full min-h-[140px]">
-              <div class="mb-2">
-                <div class="font-bold text-xl text-center mb-2">{{ card.emoji }} {{ card.title }}</div>
-                <div class="text-5xl font-extrabold text-gray-800 text-center">{{ card.count }}</div>
-              </div>
+            <div class="{{ card.color_class }} px-4 py-3 rounded-xl shadow-sm flex flex-col justify-center h-full min-h-[80px]">
+              <div class="text-sm font-semibold text-center mb-1">{{ card.emoji }} {{ card.title }}</div>
+              <div class="text-lg font-bold text-gray-800 text-center">{{ card.count }}</div>
             </div>
           {% endif %}
         {% endfor %}
       </div>
     </div>
-</div>
+  </div>
 
 
 <div class="w-full px-4 sm:px-6 lg:px-8 my-10">
