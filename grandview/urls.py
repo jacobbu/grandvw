@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth.views import LogoutView
+from accounts import views
 from custom_logic.views import user_dashboard
 from django.conf import settings
 from django.conf.urls.static import static
@@ -13,6 +14,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('logout/', LogoutView.as_view(), name='logout'),
     path("", include("custom_logic.urls", namespace="custom_logic")),
+    path('account/', views.account_details, name='account_details'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,21 @@
+{% extends "core/base.html" %}
+
+{% block title %}Account Details{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md space-y-6">
+  <h1 class="text-3xl font-bold text-gray-800 mb-4">Account Details</h1>
+
+  <div>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Date joined:</strong> {{ user.date_joined }}</p>
+    <p><strong>Last login:</strong> {{ user.last_login }}</p>
+  </div>
+
+  <!-- Technical Overview Button -->
+  <a href="{% url 'custom_logic:technical_overview' %}" class="inline-block mt-4 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition">
+    View Technical Overview
+  </a>
+</div>
+{% endblock %}

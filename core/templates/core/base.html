@@ -18,12 +18,6 @@
           _/\_ grandvw.io
         </a>
 
-        <!-- Username (centered on desktop) -->
-        <div class="absolute left-1/2 transform -translate-x-1/2 hidden sm:block">
-          {% if request.user.is_authenticated %}
-            <span class="text-sm text-gray-500 italic">{{ request.user.username }}</span>
-          {% endif %}
-        </div>
 
         <!-- Nav links -->
         <div class="hidden sm:flex items-center space-x-6 text-sm">
@@ -32,7 +26,7 @@
             <a href="{% url 'custom_logic:chat' %}" class="block hover:text-blue-600">AI Assistant</a>
             <a href="{% url 'custom_logic:user_charts' %}" class="hover:text-blue-600">Charts</a>
             <a href="{% url 'video:videos' %}" class="hover:text-blue-600">Video Streams</a>
-            <a href="{% url 'custom_logic:technical_overview' %}" class="block hover:text-blue-600">Technical Overview</a>
+            <a href="{% url 'account_details' %}" class="text-sm text-blue-600 hover:text-blue-400">{{ request.user.username }}</a>
           {% else %}
             <a href="{% url 'accounts:login' %}" class="bg-blue-800 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition">Log in</a>
           {% endif %}
@@ -53,7 +47,7 @@
           <a href="{% url 'custom_logic:chat' %}" class="block hover:text-blue-600">AI Assistant</a>
           <a href="{% url 'custom_logic:user_charts' %}" class="block hover:text-blue-600">Charts</a>
           <a href="{% url 'video:videos' %}" class="block hover:text-blue-600">Video Streams</a>
-          <a href="{% url 'custom_logic:technical_overview' %}" class="block hover:text-blue-600">Technical Overview</a>
+          <a href="{% url 'account_details' %}" class="text-sm text-blue-600 hover:text-blue-400">{{ request.user.username }}</a>
         {% else %}
           <a href="{% url 'accounts:login' %}" class="block bg-blue-800 text-white px-4 py-2 rounded-xl hover:bg-blue-600">Log in</a>
         {% endif %}
@@ -69,7 +63,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t mt-10 py-4 shadow-inner">
+    <footer class="bg-white mt-10 py-4 shadow-inner">
       <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between text-sm px-6">
         <p class="text-gray-500">_/\________</p>
         <p class="text-gray-400 text-center sm:text-left mt-2 sm:mt-0">
