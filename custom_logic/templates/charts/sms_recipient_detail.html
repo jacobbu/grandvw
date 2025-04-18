@@ -18,8 +18,9 @@
 
     <hr class="my-4">
 
-    <p class="text-gray-500 text-sm italic">Example message that would be sent:</p>
-    <div class="bg-gray-100 p-3 rounded text-sm font-mono text-gray-800">{{ example_message }}</div>
+    <p class="text-gray-500 text-sm italic">Message template:</p>
+    <div class="bg-gray-100 p-3 rounded text-sm font-mono text-gray-800">{{ recipient.message_template|linebreaksbr }}</div>
   </div>
 </div>
 {% endblock %}
+ 

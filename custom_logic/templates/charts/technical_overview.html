@@ -10,7 +10,7 @@
     <ul class="grid gap-4 md:grid-cols-2">
       {% for event in events %}
         {% if event.slug %}
-          <a href="{% url 'event_detail' event.slug %}" class="block">
+          <a href="{% url 'custom_logic:event_detail' event.slug %}" class="block">
             <li class="bg-white shadow p-4 rounded-xl hover:bg-gray-50 transition">
               <h3 class="text-lg font-semibold">{{ event.name }}</h3>
             </li>
@@ -30,7 +30,7 @@
     <h2 class="text-2xl font-bold mb-4">Trained Object Labels</h2>
     <ul class="grid gap-4 md:grid-cols-3">
       {% for label in detections %}
-        <a href="{% url 'label_detail' label.id %}" class="block">
+        <a href="{% url 'custom_logic:label_detail' label.id %}" class="block">
           <li class="bg-white shadow p-4 rounded-xl hover:bg-gray-50 transition space-y-3">
             {% if label.image_with_box %}
               <img src="{{ label.image_with_box.url }}" alt="{{ label.label }}"
@@ -53,7 +53,7 @@
     <h2 class="text-2xl font-bold mb-4">Model Performance</h2>
     <div class="grid md:grid-cols-2 gap-6">
       {% for image in model_performance_images %}
-        <a href="{% url 'model_performance_detail' image.id %}" class="block">
+        <a href="{% url 'custom_logic:model_performance_detail' image.id %}" class="block">
           <div class="bg-white rounded-xl shadow overflow-hidden hover:bg-gray-50 transition">
             {% if image.image %}
               <img src="{{ image.image.url }}" class="w-full h-48 object-cover">
@@ -72,7 +72,7 @@
     <h2 class="text-2xl font-bold mb-4">SMS Alerts</h2>
     <ul class="grid gap-4 md:grid-cols-2">
       {% for recipient in sms_alerts %}
-        <a href="{% url 'sms_recipient_detail' recipient.id %}" class="block">
+        <a href="{% url 'custom_logic:sms_recipient_detail' recipient.id %}" class="block">
           <li class="bg-white shadow p-4 rounded-xl hover:bg-gray-50 transition space-y-2">
             <h3 class="text-lg font-semibold">📱 {{ recipient.phone_number }}</h3>
             <p class="text-sm text-gray-600">
@@ -90,7 +90,7 @@
   <h2 class="text-2xl font-bold mb-4">Custom Charts</h2>
   <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for graph in graphs %}
-      <a href="{% url 'chart_detail' graph.slug %}" class="block">
+      <a href="{% url 'custom_logic:chart_detail' graph.slug %}" class="block">
         <div class="bg-white shadow p-4 rounded-xl hover:bg-gray-50 transition">
           <h3 class="text-lg font-semibold text-gray-800">{{ graph.name }}</h3>
         </div>

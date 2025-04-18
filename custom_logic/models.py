@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils.text import slugify
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -136,3 +137,48 @@ class ModelPerformanceImage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.TextField()
     image = models.ImageField(upload_to="model_performance/")
+
+class DailySummary(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='daily_summaries')
+    date = models.DateField(default=timezone.now)
+    
+    # Natural language summary for display
+    summary_text = models.TextField()
+
+    # Optional: structured data used to generate the summary
+    raw_data = models.JSONField(blank=True, null=True)
+
+    # Optional: system notes or generation metadata
+    generated_by = models.CharField(max_length=255, default='auto', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'date')
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"Summary for {self.user.username} on {self.date}"
+    
+class ChatMessage(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=[("user", "User"), ("assistant", "Assistant")])
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp']
+
+
+class UserKnowledgeBase(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="knowledge_base")
+    content = models.TextField(help_text="Static business knowledge (goals, org chart, SOPs, etc.)")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Knowledge for {self.user.username}"
+    
+class DailySummarySubscription(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.username}'s daily summary subscription"

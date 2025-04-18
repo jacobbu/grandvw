@@ -6,11 +6,25 @@
 
 {% block content %}
 
-   <!-- Today Cards -->
-   <div class="w-full px-4 sm:px-6 lg:px-8 my-10">
-    <div class="max-w-7xl mx-auto">
-      <h2 class="text-3xl font-bold text-gray-800 mb-6">Today's Totals</h2>
-  
+  <!-- Daily Summary Section -->
+  {% if latest_summary %}
+    <div class="w-full px-4 sm:px-6 lg:px-8 mt-10">
+      <div class="max-w-7xl mx-auto rounded-2xl bg-white shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Yesterday's Summary — {{ latest_summary.date }}</h2>
+        <p class="text-gray-700 leading-relaxed">
+          {{ latest_summary.summary_text }}
+        </p>
+      </div>
+    </div>
+  {% endif %}
+
+
+  <!-- Today Cards Section -->
+  <div class="w-full px-4 sm:px-6 lg:px-8 my-10">
+    <div class="max-w-7xl mx-auto rounded-2xl bg-white shadow-md p-6">
+      {% now "F j, Y" as today_date %}
+      <h2 class="text-xl font-bold text-gray-800 mb-6">Today's Totals — {{ today_date }}</h2>
+
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {% for card in cards %}
           {% if card.period == "Today" %}
@@ -24,10 +38,12 @@
         {% endfor %}
       </div>
     </div>
-  </div>
+</div>
 
-  <div class="rounded-2xl bg-white shadow p-6 mb-8">
-    <h2 class="text-2xl font-bold mb-4">Recent Events</h2>
+
+<div class="w-full px-4 sm:px-6 lg:px-8 my-10">
+  <div class="max-w-7xl mx-auto rounded-2xl bg-white shadow-md p-6">
+    <h2 class="text-xl font-bold mb-4">Recent Events</h2>
   
     <!-- Responsive Table Wrapper -->
     <div class="w-full overflow-x-auto">
@@ -72,6 +88,7 @@
         </tbody>
       </table>
     </div>
+  </div>
   
     <!-- GIF Modal -->
     <div id="gifModal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden justify-center items-center">

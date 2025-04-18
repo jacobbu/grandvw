@@ -2,12 +2,22 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from video.models import Event, Detection
 from django.utils.timezone import now, localtime, timedelta
-from .models import CustomChart,CustomMetricCard
+from .models import CustomChart,CustomMetricCard, ChatMessage
 from custom_logic.utils import execute_chartjs_config, get_rendered_charts, send_sms
 from custom_logic.models import EventDefinition, DetectionLabel, ModelPerformanceImage, SMSRecipient
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 from django.shortcuts import get_object_or_404
+from custom_logic.models import DailySummary 
+from django.shortcuts import render, redirect
+from .forms import ChatInputForm
+from openai import OpenAI
+import os
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.http import StreamingHttpResponse
+import openai
+import time
 
 
 @login_required
@@ -18,9 +28,8 @@ def user_dashboard(request):
     last_year = today - timedelta(days=365)
 
     events_today = Event.objects.filter(user=request.user, timestamp__date=today)
-    recent_events = Event.objects.filter(user=request.user).order_by('-timestamp')[:20]
+    recent_events = Event.objects.filter(user=request.user).order_by('-timestamp')[:100]
 
-    # Generate cards
     cards = []
     metric_cards = CustomMetricCard.objects.filter(user=request.user)
     for card in metric_cards:
@@ -41,12 +50,19 @@ def user_dashboard(request):
             "period": card.get_period_display(),
         })
 
-    return render(request, 'core/dashboard.html', {
+    latest_summary = DailySummary.objects.filter(user=request.user).order_by('-date').first()
+
+    context = {
         'success_count': events_today.filter(event_type='KIT_SUCCESS').count(),
         'failure_count': events_today.filter(event_type='KIT_ERROR').count(),
         'events': recent_events,
-        'cards': cards,  # ✅ Add this line
-    })
+        'cards': cards,
+        'latest_summary': latest_summary,
+    }
+
+    return render(request, 'core/dashboard.html', context)
+
+
 
 
 @login_required
@@ -199,4 +215,128 @@ def chart_detail(request, slug):
         "chart_config": chart_config,
     })
 
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+def format_recent_events_for_prompt(user, limit=20):
+    events = Event.objects.filter(user=user).order_by('-timestamp')[:limit]
+    lines = []
+
+    for event in events:
+        time_str = localtime(event.timestamp).strftime("%Y-%m-%d %H:%M")
+        lines.append(
+            f"- {time_str} | {event.camera.name} | {event.event_type} | {event.people or 'Unknown'} | {event.details or 'No details'} | {event.gif.url if event.gif else 'No visual'}"
+        )
+
+    return "**Recent Event Log:**\n\n" + "\n".join(lines)
+
+
+@login_required
+def chat_view(request):
+    messages = ChatMessage.objects.filter(user=request.user)
+
+    # Check if chat is empty and yesterday's summary exists
+    if not messages.exists():
+        yesterday = localtime().date() - timedelta(days=1)
+        summary = DailySummary.objects.filter(user=request.user, date=yesterday).first()
+        if summary:
+            ChatMessage.objects.create(
+                user=request.user,
+                role='assistant',
+                content=f"Here's a summary of what happened yesterday ({yesterday}):\n\n{summary.summary_text}"
+            )
+            messages = ChatMessage.objects.filter(user=request.user)
+
+    if request.method == "POST":
+        form = ChatInputForm(request.POST)
+        if form.is_valid():
+            user_message = form.cleaned_data['message']
+            ChatMessage.objects.create(user=request.user, role='user', content=user_message)
+
+            messages = ChatMessage.objects.filter(user=request.user)
+
+            knowledge = getattr(request.user.knowledge_base, "content", "")
+
+            history = [
+                {"role": "system", "content": "You are a helpful assistant..."},
+                {"role": "system", "content": format_recent_events_for_prompt(request.user)},
+                {"role": "system", "content": f"User's Business Knowledge:\n{knowledge}"},
+            ] + [{"role": m.role, "content": m.content} for m in messages]
+
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=history,
+                temperature=0.3
+            )
+
+            assistant_reply = response.choices[0].message.content
+            ChatMessage.objects.create(user=request.user, role='assistant', content=assistant_reply)
+
+            return redirect("custom_logic:chat")
+
+    else:
+        form = ChatInputForm()
+
+    return render(request, "charts/chat.html", {
+        "messages": messages,
+        "form": form
+    })
+
+
+@csrf_exempt
+@login_required
+def chat_ajax(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        user_message = data.get("message", "").strip()
+        assistant_reply = data.get("assistant_reply", "").strip()
+
+        if assistant_reply:
+            ChatMessage.objects.create(user=request.user, role="assistant", content=assistant_reply)
+            return JsonResponse({"status": "assistant saved"})
+
+        if user_message:
+            ChatMessage.objects.create(user=request.user, role="user", content=user_message)
+            return JsonResponse({"status": "user saved"})
+
+        return JsonResponse({"error": "Empty message or reply"}, status=400)
+
+@csrf_exempt
+@login_required
+def chat_stream(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
+
+    data = json.loads(request.body)
+    user_message = data.get("message", "").strip()
+
+    if not user_message:
+        return JsonResponse({"error": "Empty message"}, status=400)
+
+    ChatMessage.objects.create(user=request.user, role='user', content=user_message)
+
+    messages = ChatMessage.objects.filter(user=request.user)
+    knowledge = getattr(request.user.knowledge_base, "content", "")
+
+    history = [
+        {"role": "system", "content": "You are a helpful assistant..."},
+        {"role": "system", "content": format_recent_events_for_prompt(request.user)},
+        {"role": "system", "content": f"User's Business Knowledge:\n{knowledge}"},
+    ] + [{"role": m.role, "content": m.content} for m in messages]
+
+    def generate():
+        full_response = ""
+        stream = client.chat.completions.create(
+            model="gpt-4",
+            messages=history,
+            stream=True,
+        )
+        for chunk in stream:
+            token = getattr(chunk.choices[0].delta, "content", "")
+            full_response += token
+            yield f"data: {token}\n\n"
+
+        # Save assistant reply
+        ChatMessage.objects.create(user=request.user, role='assistant', content=full_response)
+
+
+    return StreamingHttpResponse(generate(), content_type="text/event-stream")

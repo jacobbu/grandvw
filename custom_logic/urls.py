@@ -7,6 +7,11 @@ from .views import label_detail
 from .views import model_performance_detail
 from .views import sms_recipient_detail
 from .views import chart_detail
+from .views import chat_view
+from .views import chat_ajax
+from .views import chat_stream
+
+app_name = "custom_logic"
 
 urlpatterns = [
     path('user-dashboard/', user_dashboard, name='user_dashboard'),
@@ -17,5 +22,7 @@ urlpatterns = [
     path("labels/<int:label_id>/", label_detail, name="label_detail"),
     path("model-performance/<int:image_id>/", model_performance_detail, name="model_performance_detail"),
     path("sms-recipients/<int:recipient_id>/", sms_recipient_detail, name="sms_recipient_detail"),
-
+    path("chat/", chat_view, name="chat"),
+    path("chat-ajax/", chat_ajax, name="chat_ajax"),
+    path("chat-stream/", chat_stream, name="chat_stream"),
 ]

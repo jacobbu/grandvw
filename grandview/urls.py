@@ -12,7 +12,7 @@ urlpatterns = [
     path("video/", include('video.urls', namespace='video')),
     path("admin/", admin.site.urls),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('', include('custom_logic.urls'))
+    path("", include("custom_logic.urls", namespace="custom_logic")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -29,9 +29,10 @@
         <div class="hidden sm:flex items-center space-x-6 text-sm">
           {% if request.user.is_authenticated %}
             <a href="{% url 'core:dashboard' %}" class="hover:text-blue-600">Dashboard</a>
-            <a href="{% url 'user_charts' %}" class="hover:text-blue-600">Charts</a>
+            <a href="{% url 'custom_logic:chat' %}" class="block hover:text-blue-600">AI Assistant</a>
+            <a href="{% url 'custom_logic:user_charts' %}" class="hover:text-blue-600">Charts</a>
             <a href="{% url 'video:videos' %}" class="hover:text-blue-600">Video Streams</a>
-            <a href="{% url 'technical_overview' %}" class="block hover:text-blue-600">Technical Overview</a>
+            <a href="{% url 'custom_logic:technical_overview' %}" class="block hover:text-blue-600">Technical Overview</a>
           {% else %}
             <a href="{% url 'accounts:login' %}" class="bg-blue-800 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition">Log in</a>
           {% endif %}
@@ -49,9 +50,10 @@
       <div id="mobileMenu" class="sm:hidden hidden mt-4 px-6 space-y-2">
         {% if request.user.is_authenticated %}
           <a href="{% url 'core:dashboard' %}" class="block hover:text-blue-600">Dashboard</a>
-          <a href="{% url 'user_charts' %}" class="block hover:text-blue-600">Charts</a>
+          <a href="{% url 'custom_logic:chat' %}" class="block hover:text-blue-600">AI Assistant</a>
+          <a href="{% url 'custom_logic:user_charts' %}" class="block hover:text-blue-600">Charts</a>
           <a href="{% url 'video:videos' %}" class="block hover:text-blue-600">Video Streams</a>
-          <a href="{% url 'technical_overview' %}" class="block hover:text-blue-600">Technical Overview</a>
+          <a href="{% url 'custom_logic:technical_overview' %}" class="block hover:text-blue-600">Technical Overview</a>
         {% else %}
           <a href="{% url 'accounts:login' %}" class="block bg-blue-800 text-white px-4 py-2 rounded-xl hover:bg-blue-600">Log in</a>
         {% endif %}
